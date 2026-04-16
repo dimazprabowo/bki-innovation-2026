@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             SystemConfigurationSeeder::class,
             UserSeeder::class,
+            ModuleSeeder::class,
+            ProjectSeeder::class,
         ]);
     }
 }

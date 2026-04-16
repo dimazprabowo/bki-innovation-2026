@@ -76,6 +76,7 @@ class RolePermissionService
         $groupMapping = [
             'Dashboard' => [
                 ['name' => 'dashboard_view', 'label' => 'Lihat Dashboard'],
+                ['name' => 'manage_own_company', 'label' => 'Kelola Perusahaan Sendiri'],
             ],
             'Perusahaan' => [
                 ['name' => 'companies_view',         'label' => 'Lihat Perusahaan'],
@@ -115,6 +116,23 @@ class RolePermissionService
                 ['name' => 'chat_view',   'label' => 'Lihat Chat'],
                 ['name' => 'chat_create', 'label' => 'Buat Chat'],
                 ['name' => 'chat_delete', 'label' => 'Hapus Chat'],
+            ],
+            'Modul Pengadaan' => [
+                ['name' => 'modules_view',         'label' => 'Lihat Modul'],
+                ['name' => 'modules_create',       'label' => 'Tambah Modul'],
+                ['name' => 'modules_update',       'label' => 'Edit Modul'],
+                ['name' => 'modules_delete',       'label' => 'Hapus Modul'],
+                ['name' => 'modules_export_excel', 'label' => 'Export Excel Modul'],
+                ['name' => 'modules_export_pdf',   'label' => 'Export PDF Modul'],
+            ],
+            'Project Pengadaan' => [
+                ['name' => 'projects_view',         'label' => 'Lihat Project'],
+                ['name' => 'projects_create',       'label' => 'Buat Project'],
+                ['name' => 'projects_update',       'label' => 'Edit Project'],
+                ['name' => 'projects_delete',       'label' => 'Hapus Project'],
+                ['name' => 'projects_approve',      'label' => 'Approve Project'],
+                ['name' => 'projects_export_excel', 'label' => 'Export Excel Project'],
+                ['name' => 'projects_export_pdf',   'label' => 'Export PDF Project'],
             ],
         ];
 

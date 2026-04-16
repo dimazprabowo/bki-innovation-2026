@@ -4,7 +4,9 @@ namespace App\Livewire\Traits;
 
 use App\Models\Chat;
 use App\Models\Company;
+use App\Models\Module;
 use App\Models\Notification;
+use App\Models\Project;
 use App\Models\SystemConfiguration;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +30,8 @@ trait HasMenuItems
         $perms = [
             'dashboard_view'     => Gate::allows('viewStats'),
             'companies_view'     => Gate::allows('viewAny', Company::class),
+            'modules_view'       => Gate::allows('viewAny', Module::class),
+            'projects_view'      => Gate::allows('viewAny', Project::class),
             'notifications_view' => Gate::allows('viewAny', Notification::class),
             'notifications_send' => Gate::allows('send', Notification::class),
             'chat_view'          => Gate::allows('viewAny', Chat::class),
@@ -56,12 +60,29 @@ trait HasMenuItems
                 'active' => $req->routeIs('master-data.companies'),
             ];
         }
+        if ($perms['modules_view']) {
+            $masterDataChildren[] = [
+                'name'   => 'Modul Pengadaan',
+                'route'  => 'master-data.modules',
+                'active' => $req->routeIs('master-data.modules'),
+            ];
+        }
         if (!empty($masterDataChildren)) {
             $items[] = [
                 'name'     => 'Master Data',
                 'icon'     => 'database',
                 'active'   => $req->routeIs('master-data.*'),
                 'children' => $masterDataChildren,
+            ];
+        }
+
+        // Projects
+        if ($perms['projects_view']) {
+            $items[] = [
+                'name'   => 'Project Pengadaan',
+                'route'  => 'projects.index',
+                'icon'   => 'briefcase',
+                'active' => $req->routeIs('projects.*'),
             ];
         }
 

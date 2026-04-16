@@ -16,8 +16,8 @@ class PermissionSeeder extends Seeder
      *
      * Konvensi penamaan:
      *   {entity}_{action}
-     *   entity : dashboard, companies, configuration, users, roles, notifications, chat
-     *   action : view, create, update, delete, export_excel, export_pdf, send
+     *   entity : dashboard, companies, configuration, users, roles, notifications, chat, modules, projects
+     *   action : view, create, update, delete, export_excel, export_pdf, send, approve
      *
      * Format ini memudahkan grouping otomatis di UI berdasarkan entity prefix.
      */
@@ -67,6 +67,23 @@ class PermissionSeeder extends Seeder
             'chat_view',
             'chat_create',
             'chat_delete',
+
+            // Master Data — Modules (Template Pengadaan)
+            'modules_view',
+            'modules_create',
+            'modules_update',
+            'modules_delete',
+            'modules_export_excel',
+            'modules_export_pdf',
+
+            // Projects (Pengadaan Jasa)
+            'projects_view',
+            'projects_create',
+            'projects_update',
+            'projects_delete',
+            'projects_approve',
+            'projects_export_excel',
+            'projects_export_pdf',
 
             // Profile - Company Management
             'manage_own_company',

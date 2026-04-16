@@ -27,7 +27,16 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/companies', function () {
             return view('master-data.companies');
         })->middleware('can:companies_view')->name('companies');
+
+        Route::get('/modules', function () {
+            return view('master-data.modules');
+        })->middleware('can:modules_view')->name('modules');
     });
+
+    // Project Routes
+    Route::get('/projects', function () {
+        return view('projects.index');
+    })->middleware('can:projects_view')->name('projects.index');
 
     // Notifications
     Route::get('/notifications', function () {

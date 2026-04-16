@@ -5,13 +5,17 @@ namespace App\Providers;
 use App\Models\Chat;
 use App\Models\ChatMessage;
 use App\Models\Company;
+use App\Models\Module;
 use App\Models\Notification;
+use App\Models\Project;
 use App\Models\SystemConfiguration;
 use App\Models\User;
 use App\Policies\ChatPolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\DashboardPolicy;
+use App\Policies\ModulePolicy;
 use App\Policies\NotificationPolicy;
+use App\Policies\ProjectPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\SystemConfigurationPolicy;
 use App\Policies\UserPolicy;
@@ -38,6 +42,8 @@ class AppServiceProvider extends ServiceProvider
         // Register Policies
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
+        Gate::policy(Module::class, ModulePolicy::class);
+        Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(SystemConfiguration::class, SystemConfigurationPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Notification::class, NotificationPolicy::class);
