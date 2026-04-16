@@ -127,6 +127,6 @@ class ProjectSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('Sample projects created successfully!');
+        // $this->command->info('Sample projects created successfully!');
     }
 }
