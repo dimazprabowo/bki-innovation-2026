@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('scope')->nullable();
             $table->string('method')->nullable();
-            $table->text('resource')->nullable();
             $table->string('duration')->nullable();
             $table->text('deliverable')->nullable();
             $table->enum('risk_level', ['low', 'medium', 'high'])->default('low');

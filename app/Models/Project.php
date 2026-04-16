@@ -18,7 +18,6 @@ class Project extends Model
         'name',
         'scope',
         'method',
-        'resource',
         'duration',
         'deliverable',
         'risk_level',
@@ -55,6 +54,22 @@ class Project extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function resources()
+    {
+        return $this->belongsToMany(User::class, 'project_resources')
+            ->withTimestamps();
+    }
+
+    public function equipments()
+    {
+        return $this->hasMany(ProjectEquipment::class);
+    }
+
+    public function accommodations()
+    {
+        return $this->hasMany(ProjectAccommodation::class);
     }
 
     public function getTotalEstimateAttribute()

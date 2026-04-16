@@ -27,9 +27,9 @@ class ProjectService
             ->paginate($perPage);
     }
 
-    public function create(array $data, array $modules = []): Project
+    public function create(array $data, array $modules = [], array $resources = [], array $equipments = [], array $accommodations = []): Project
     {
-        return DB::transaction(function () use ($data, $modules) {
+        return DB::transaction(function () use ($data, $modules, $resources, $equipments, $accommodations) {
             $data['code'] = strtoupper($data['code']);
             $data['created_by'] = auth()->id();
             
@@ -41,13 +41,25 @@ class ProjectService
                 $this->syncModules($project, $modules);
             }
 
-            return $project->load('modules');
+            if (!empty($resources)) {
+                $project->resources()->sync($resources);
+            }
+
+            if (!empty($equipments)) {
+                $this->syncEquipments($project, $equipments);
+            }
+
+            if (!empty($accommodations)) {
+                $this->syncAccommodations($project, $accommodations);
+            }
+
+            return $project->load(['modules', 'resources', 'equipments', 'accommodations']);
         });
     }
 
-    public function update(Project $project, array $data, ?array $modules = null): Project
+    public function update(Project $project, array $data, ?array $modules = null, ?array $resources = null, ?array $equipments = null, ?array $accommodations = null): Project
     {
-        return DB::transaction(function () use ($project, $data, $modules) {
+        return DB::transaction(function () use ($project, $data, $modules, $resources, $equipments, $accommodations) {
             $data['code'] = strtoupper($data['code']);
             
             if (isset($data['risk_level'])) {
@@ -60,7 +72,19 @@ class ProjectService
                 $this->syncModules($project, $modules);
             }
 
-            return $project->fresh(['modules']);
+            if ($resources !== null) {
+                $project->resources()->sync($resources);
+            }
+
+            if ($equipments !== null) {
+                $this->syncEquipments($project, $equipments);
+            }
+
+            if ($accommodations !== null) {
+                $this->syncAccommodations($project, $accommodations);
+            }
+
+            return $project->fresh(['modules', 'resources', 'equipments', 'accommodations']);
         });
     }
 
@@ -68,6 +92,7 @@ class ProjectService
     {
         return DB::transaction(function () use ($project) {
             $project->modules()->detach();
+            $project->resources()->detach();
             return $project->delete();
         });
     }
@@ -151,6 +176,45 @@ class ProjectService
         }
 
         $project->modules()->sync($syncData);
+    }
+
+    protected function syncEquipments(Project $project, array $equipments): void
+    {
+        // Delete existing equipments
+        $project->equipments()->delete();
+        
+        // Create new equipments
+        foreach ($equipments as $equipmentData) {
+            if (!empty($equipmentData['name'])) {
+                $project->equipments()->create([
+                    'name' => $equipmentData['name'],
+                    'specification' => $equipmentData['specification'] ?? null,
+                    'quantity' => $equipmentData['quantity'] ?? 1,
+                    'unit' => $equipmentData['unit'] ?? null,
+                    'notes' => $equipmentData['notes'] ?? null,
+                ]);
+            }
+        }
+    }
+
+    protected function syncAccommodations(Project $project, array $accommodations): void
+    {
+        // Delete existing accommodations
+        $project->accommodations()->delete();
+        
+        // Create new accommodations
+        foreach ($accommodations as $accommodationData) {
+            if (!empty($accommodationData['description'])) {
+                $project->accommodations()->create([
+                    'type' => $accommodationData['type'] ?? 'accommodation',
+                    'description' => $accommodationData['description'],
+                    'quantity' => $accommodationData['quantity'] ?? 1,
+                    'unit' => $accommodationData['unit'] ?? null,
+                    'estimated_cost' => $accommodationData['estimated_cost'] ?? 0,
+                    'notes' => $accommodationData['notes'] ?? null,
+                ]);
+            }
+        }
     }
 
     protected function determineCoEControlLevel(string $riskLevel): string
