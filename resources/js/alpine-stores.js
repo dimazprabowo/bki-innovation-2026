@@ -28,6 +28,50 @@ document.addEventListener('alpine:init', () => {
             },
         });
     }
+
+    if (!Alpine.store('notification')) {
+        Alpine.store('notification', {
+            queue: [],
+            show: false,
+            type: 'success',
+            title: '',
+            message: '',
+            timeout: null,
+
+            add(type, message) {
+                this.queue.push({ type, message });
+                this.showNext();
+            },
+
+            showNext() {
+                if (this.show || this.queue.length === 0) return;
+
+                const notification = this.queue.shift();
+                this.type = notification.type;
+                this.title = notification.type === 'success' ? 'Berhasil' : notification.type === 'error' ? 'Error' : notification.type === 'warning' ? 'Peringatan' : 'Informasi';
+                this.message = notification.message;
+                this.show = true;
+
+                clearTimeout(this.timeout);
+                this.timeout = setTimeout(() => {
+                    this.show = false;
+                    setTimeout(() => this.showNext(), 300);
+                }, 5000);
+            },
+
+            hide() {
+                this.show = false;
+                clearTimeout(this.timeout);
+                setTimeout(() => this.showNext(), 300);
+            }
+        });
+
+        // Listen for Livewire notify events
+        window.addEventListener('notify', (e) => {
+            const notification = Array.isArray(e.detail) ? e.detail[0] : e.detail;
+            Alpine.store('notification').add(notification.type || 'success', notification.message || '');
+        });
+    }
 });
 
 /**

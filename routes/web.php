@@ -24,20 +24,38 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     // Master Data Routes
     Route::prefix('master-data')->name('master-data.')->group(function () {
+        // Companies
         Route::get('/companies', function () {
             return view('master-data.companies');
         })->middleware('can:companies_view')->name('companies');
 
+        // Modules
         Route::get('/modules', function () {
             return view('master-data.modules');
         })->middleware('can:modules_view')->name('modules');
 
+        // Competencies
         Route::get('/competencies', function () {
             return view('master-data.competencies');
         })->middleware('can:competencies_view')->name('competencies');
+
+        // Personels
+        Route::prefix('personels')->name('personels.')->group(function () {
+            Route::get('/', function () {
+                return view('master-data.personels');
+            })->middleware('can:personels_view')->name('index');
+
+            Route::get('/create', function () {
+                return view('master-data.personels-create');
+            })->middleware('can:personels_create')->name('create');
+
+            Route::get('/{personel}/edit', function (\App\Models\Personel $personel) {
+                return view('master-data.personels-edit', ['personel' => $personel]);
+            })->middleware('can:personels_update')->name('edit');
+        });
     });
 
-    // Project Routes
+    // Projects
     Route::get('/projects', function () {
         return view('projects.index');
     })->middleware('can:projects_view')->name('projects.index');
@@ -56,16 +74,19 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         return view('chat.index');
     })->middleware('can:chat_view')->name('chat.index');
 
-    // Settings Routes - each route checks its own permission
+    // Settings
     Route::prefix('settings')->name('settings.')->group(function () {
+        // System Configuration
         Route::get('/system', function () {
             return view('settings.system');
         })->middleware('can:configuration_view')->name('system');
-        
+
+        // Users Management
         Route::get('/users', function () {
             return view('settings.users');
         })->middleware('can:users_view')->name('users');
-        
+
+        // Roles Management
         Route::get('/roles', function () {
             return view('settings.roles');
         })->middleware('can:roles_view')->name('roles');

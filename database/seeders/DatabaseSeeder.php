@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ModuleSeeder::class,
             CompetencySeeder::class,
+            PersonelSeeder::class,
             ProjectSeeder::class,
         ]);
     }

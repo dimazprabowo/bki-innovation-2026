@@ -37,5 +37,10 @@ return [
             'max_size' => 20480, // 20 MB
             'mimes' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip', 'rar', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'],
         ],
+
+        'personel_certificate' => [
+            'max_size' => 10240, // 10 MB
+            'mimes' => ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+        ],
     ],
 ];

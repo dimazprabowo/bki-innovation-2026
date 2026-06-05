@@ -133,6 +133,14 @@ class RolePermissionService
                 ['name' => 'competencies_export_excel', 'label' => 'Export Excel Kompetensi'],
                 ['name' => 'competencies_export_pdf',   'label' => 'Export PDF Kompetensi'],
             ],
+            'Personel' => [
+                ['name' => 'personels_view',         'label' => 'Lihat Personel'],
+                ['name' => 'personels_create',       'label' => 'Tambah Personel'],
+                ['name' => 'personels_update',       'label' => 'Edit Personel'],
+                ['name' => 'personels_delete',       'label' => 'Hapus Personel'],
+                ['name' => 'personels_export_excel', 'label' => 'Export Excel Personel'],
+                ['name' => 'personels_export_pdf',   'label' => 'Export PDF Personel'],
+            ],
             'Project Pengadaan' => [
                 ['name' => 'projects_view',         'label' => 'Lihat Project'],
                 ['name' => 'projects_create',       'label' => 'Buat Project'],
