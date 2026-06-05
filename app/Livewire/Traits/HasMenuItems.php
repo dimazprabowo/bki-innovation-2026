@@ -7,6 +7,7 @@ use App\Models\Competency;
 use App\Models\Company;
 use App\Models\Module;
 use App\Models\Notification;
+use App\Models\Peralatan;
 use App\Models\Personel;
 use App\Models\Project;
 use App\Models\SystemConfiguration;
@@ -35,6 +36,7 @@ trait HasMenuItems
             'modules_view'       => Gate::allows('viewAny', Module::class),
             'competencies_view'  => Gate::allows('viewAny', Competency::class),
             'personels_view'     => Gate::allows('viewAny', Personel::class),
+            'peralatan_view'     => Gate::allows('viewAny', Peralatan::class),
             'projects_view'      => Gate::allows('viewAny', Project::class),
             'notifications_view' => Gate::allows('viewAny', Notification::class),
             'notifications_send' => Gate::allows('send', Notification::class),
@@ -83,6 +85,13 @@ trait HasMenuItems
                 'name'   => 'Personel',
                 'route'  => 'master-data.personels.index',
                 'active' => $req->routeIs('master-data.personels.*'),
+            ];
+        }
+        if ($perms['peralatan_view']) {
+            $masterDataChildren[] = [
+                'name'   => 'Peralatan',
+                'route'  => 'master-data.peralatan.index',
+                'active' => $req->routeIs('master-data.peralatan.*'),
             ];
         }
         if (!empty($masterDataChildren)) {

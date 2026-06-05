@@ -141,6 +141,14 @@ class RolePermissionService
                 ['name' => 'personels_export_excel', 'label' => 'Export Excel Personel'],
                 ['name' => 'personels_export_pdf',   'label' => 'Export PDF Personel'],
             ],
+            'Peralatan' => [
+                ['name' => 'peralatan_view',         'label' => 'Lihat Peralatan'],
+                ['name' => 'peralatan_create',       'label' => 'Tambah Peralatan'],
+                ['name' => 'peralatan_update',       'label' => 'Edit Peralatan'],
+                ['name' => 'peralatan_delete',       'label' => 'Hapus Peralatan'],
+                ['name' => 'peralatan_export_excel', 'label' => 'Export Excel Peralatan'],
+                ['name' => 'peralatan_export_pdf',   'label' => 'Export PDF Peralatan'],
+            ],
             'Project Pengadaan' => [
                 ['name' => 'projects_view',         'label' => 'Lihat Project'],
                 ['name' => 'projects_create',       'label' => 'Buat Project'],

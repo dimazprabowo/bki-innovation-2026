@@ -53,6 +53,21 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
                 return view('master-data.personels-edit', ['personel' => $personel]);
             })->middleware('can:personels_update')->name('edit');
         });
+
+        // Peralatan
+        Route::prefix('peralatan')->name('peralatan.')->group(function () {
+            Route::get('/', function () {
+                return view('master-data.peralatan');
+            })->middleware('can:peralatan_view')->name('index');
+
+            Route::get('/create', function () {
+                return view('master-data.peralatan-create');
+            })->middleware('can:peralatan_create')->name('create');
+
+            Route::get('/{peralatan}/edit', function (\App\Models\Peralatan $peralatan) {
+                return view('master-data.peralatan-edit', ['peralatan' => $peralatan]);
+            })->middleware('can:peralatan_update')->name('edit');
+        });
     });
 
     // Projects

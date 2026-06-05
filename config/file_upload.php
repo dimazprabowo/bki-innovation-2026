@@ -42,5 +42,10 @@ return [
             'max_size' => 10240, // 10 MB
             'mimes' => ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
         ],
+
+        'peralatan_evidence' => [
+            'max_size' => 10240, // 10 MB
+            'mimes' => ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+        ],
     ],
 ];
