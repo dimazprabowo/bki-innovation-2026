@@ -24,57 +24,57 @@
         value: @entangle($attributes->wire('model')),
         options: @js($options),
         placeholder: @js($placeholder),
-        
+
         get filteredOptions() {
             if (!this.search) return this.options;
             const searchLower = this.search.toLowerCase();
-            return this.options.filter(option => 
+            return this.options.filter(option =>
                 option.label.toLowerCase().includes(searchLower) ||
                 (option.sublabel && option.sublabel.toLowerCase().includes(searchLower))
             );
         },
-        
+
         get selectedOption() {
             return this.options.find(opt => String(opt.value) === String(this.value)) || null;
         },
-        
+
         get displayText() {
             if (this.selectedOption) {
                 return this.selectedOption.label;
             }
             return this.placeholder;
         },
-        
+
         selectOption(option) {
             this.value = option.value;
             this.open = false;
             this.search = '';
         },
-        
+
         clearSelection() {
             this.value = '';
             this.open = false;
             this.search = '';
         },
-        
+
         closeDropdown() {
             this.open = false;
             this.search = '';
         },
-        
+
         checkPosition() {
             const trigger = this.$refs.trigger;
             if (!trigger) return;
-            
+
             const rect = trigger.getBoundingClientRect();
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
             const dropdownHeight = 280; // approximate max height of dropdown
-            
+
             // If not enough space below but enough above, show dropdown above
             this.dropUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
         },
-        
+
         toggleDropdown() {
             if (!this.open) {
                 this.checkPosition();
@@ -82,6 +82,7 @@
             this.open = !this.open;
         }
     }"
+    x-key="{{ $componentId }}"
     x-on:click.away="closeDropdown()"
     x-on:keydown.escape.window="closeDropdown()"
     x-on:scroll.window="if(open) checkPosition()"

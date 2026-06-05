@@ -165,6 +165,7 @@
                         @else
                             {{-- Upload Area with Loading Progress --}}
                             <div x-data="{ uploading: false, progress: 0 }"
+                                 x-key="evidence-upload-{{ $index }}"
                                  x-on:livewire-upload-start="uploading = true"
                                  x-on:livewire-upload-finish="uploading = false; progress = 0"
                                  x-on:livewire-upload-cancel="uploading = false"

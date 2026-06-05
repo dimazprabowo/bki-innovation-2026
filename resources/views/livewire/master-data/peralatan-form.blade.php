@@ -1,4 +1,4 @@
-<div wire:poll.4s="refreshEvidenceFileStatus">
+<div wire:poll.4s="refreshEvidenceFileStatus" wire:key="peralatan-form-{{ $editMode ? 'edit-'.$peralatanId : 'create' }}">
     <div class="w-full">
         <form wire:submit="save">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">

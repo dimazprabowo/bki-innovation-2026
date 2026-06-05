@@ -1,4 +1,4 @@
-<div>
+<div wire:key="peralatan-management-index">
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center gap-3">
         <!-- Search -->
         <div class="flex-1">
