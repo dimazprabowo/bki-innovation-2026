@@ -76,6 +76,14 @@ class PermissionSeeder extends Seeder
             'modules_export_excel',
             'modules_export_pdf',
 
+            // Master Data — Competencies
+            'competencies_view',
+            'competencies_create',
+            'competencies_update',
+            'competencies_delete',
+            'competencies_export_excel',
+            'competencies_export_pdf',
+
             // Projects (Pengadaan Jasa)
             'projects_view',
             'projects_create',

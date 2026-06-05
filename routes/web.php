@@ -31,6 +31,10 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/modules', function () {
             return view('master-data.modules');
         })->middleware('can:modules_view')->name('modules');
+
+        Route::get('/competencies', function () {
+            return view('master-data.competencies');
+        })->middleware('can:competencies_view')->name('competencies');
     });
 
     // Project Routes

@@ -3,6 +3,7 @@
 namespace App\Livewire\Traits;
 
 use App\Models\Chat;
+use App\Models\Competency;
 use App\Models\Company;
 use App\Models\Module;
 use App\Models\Notification;
@@ -31,6 +32,7 @@ trait HasMenuItems
             'dashboard_view'     => Gate::allows('viewStats'),
             'companies_view'     => Gate::allows('viewAny', Company::class),
             'modules_view'       => Gate::allows('viewAny', Module::class),
+            'competencies_view'  => Gate::allows('viewAny', Competency::class),
             'projects_view'      => Gate::allows('viewAny', Project::class),
             'notifications_view' => Gate::allows('viewAny', Notification::class),
             'notifications_send' => Gate::allows('send', Notification::class),
@@ -65,6 +67,13 @@ trait HasMenuItems
                 'name'   => 'Modul Pengadaan',
                 'route'  => 'master-data.modules',
                 'active' => $req->routeIs('master-data.modules'),
+            ];
+        }
+        if ($perms['competencies_view']) {
+            $masterDataChildren[] = [
+                'name'   => 'Kompetensi',
+                'route'  => 'master-data.competencies',
+                'active' => $req->routeIs('master-data.competencies'),
             ];
         }
         if (!empty($masterDataChildren)) {

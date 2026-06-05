@@ -125,6 +125,14 @@ class RolePermissionService
                 ['name' => 'modules_export_excel', 'label' => 'Export Excel Modul'],
                 ['name' => 'modules_export_pdf',   'label' => 'Export PDF Modul'],
             ],
+            'Kompetensi' => [
+                ['name' => 'competencies_view',         'label' => 'Lihat Kompetensi'],
+                ['name' => 'competencies_create',       'label' => 'Tambah Kompetensi'],
+                ['name' => 'competencies_update',       'label' => 'Edit Kompetensi'],
+                ['name' => 'competencies_delete',       'label' => 'Hapus Kompetensi'],
+                ['name' => 'competencies_export_excel', 'label' => 'Export Excel Kompetensi'],
+                ['name' => 'competencies_export_pdf',   'label' => 'Export PDF Kompetensi'],
+            ],
             'Project Pengadaan' => [
                 ['name' => 'projects_view',         'label' => 'Lihat Project'],
                 ['name' => 'projects_create',       'label' => 'Buat Project'],

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             SystemConfigurationSeeder::class,
             UserSeeder::class,
             ModuleSeeder::class,
+            CompetencySeeder::class,
             ProjectSeeder::class,
         ]);
     }
