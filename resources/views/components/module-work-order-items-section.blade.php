@@ -1,13 +1,19 @@
 @props(['workOrderItems' => []])
 
-<div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
+<div x-data="{ expanded: true }" class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
     <div class="flex items-center justify-between mb-3">
-        <div class="flex flex-col sm:flex-row sm:items-center">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Work Order Items</h4>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($workOrderItems) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif sm:ml-2 mt-1 sm:mt-0">
+        <button type="button" @click="expanded = !expanded" class="flex items-center gap-2 group">
+            <svg x-show="expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <svg x-show="!expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Work Order Items</h4>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($workOrderItems) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
                 {{ count($workOrderItems) }} item
             </span>
-        </div>
+        </button>
         <button type="button" wire:click="addWorkOrderItem" wire:key="add-work-order-item-btn"
             wire:loading.attr="disabled" wire:target="addWorkOrderItem"
             class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors whitespace-nowrap">
@@ -25,11 +31,13 @@
         </button>
     </div>
 
+    <div x-show="expanded" x-collapse>
+
     <div x-data="{ draggedItem: null, dragOverIndex: null, touchStartX: 0, touchStartY: 0, isDragging: false, touchTimer: null }" class="space-y-3">
         @forelse($workOrderItems as $itemIndex => $item)
             <div wire:key="work-order-item-{{ $itemIndex }}"
                  data-item-index="{{ $itemIndex }}"
-                 x-data="{ index: {{ $itemIndex }}, expanded: true }"
+                 x-data="{ index: {{ $itemIndex }}, expanded: @js($errors->has('workOrderItems.'.$itemIndex.'.name') || $errors->has('workOrderItems.'.$itemIndex.'.nature') || $errors->has('workOrderItems.'.$itemIndex.'.is_active') || collect($item['subitems'] ?? [])->keys()->contains(fn($key) => $errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$key.'.name') || $errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$key.'.nature') || $errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$key.'.is_active'))) }"
                  class="bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
                 <div class="p-4 cursor-move border border-transparent rounded-lg transition-colors"
                      :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500': dragOverIndex === index && draggedItem !== null && draggedItem !== index, 'hover:border-blue-300 dark:hover:border-blue-600': !(dragOverIndex === index && draggedItem !== null && draggedItem !== index) }"
@@ -82,24 +90,30 @@
                 <div x-show="expanded" x-collapse class="p-4 pt-0">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Item</label>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Item <span class="text-red-500">*</span></label>
                             <input wire:model="workOrderItems.{{ $itemIndex }}.name" type="text"
-                                class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                                placeholder="Masukkan nama item">
+                                class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
+                                placeholder="Masukkan nama item (wajib)">
+                            @error('workOrderItems.'.$itemIndex.'.name')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Deskripsi</label>
                             <textarea wire:model="workOrderItems.{{ $itemIndex }}.description" rows="3"
-                                class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
                                 placeholder="Masukkan deskripsi item"></textarea>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sifat</label>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sifat <span class="text-red-500">*</span></label>
                             <select wire:model.live="workOrderItems.{{ $itemIndex }}.nature"
-                                class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200">
                                 <option value="mandatory">Wajib</option>
                                 <option value="optional">Opsional</option>
                             </select>
+                            @error('workOrderItems.'.$itemIndex.'.nature')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
                             @if($item['nature'] === 'mandatory')
                                 <p class="text-xs text-blue-600 dark:text-blue-400 mt-0.5">Semua subitem akan otomatis wajib</p>
                             @else
@@ -107,12 +121,15 @@
                             @endif
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Status</label>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Status <span class="text-red-500">*</span></label>
                             <select wire:model="workOrderItems.{{ $itemIndex }}.is_active"
-                                class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200">
                                 <option value="1">Aktif</option>
                                 <option value="0">Tidak Aktif</option>
                             </select>
+                            @error('workOrderItems.'.$itemIndex.'.is_active')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
@@ -139,7 +156,7 @@
                             @forelse($item['subitems'] ?? [] as $subitemIndex => $subitem)
                                 <div wire:key="subitem-{{ $itemIndex }}-{{ $subitemIndex }}"
                                      data-subitem-index="{{ $subitemIndex }}"
-                                     x-data="{ subitemIndex: {{ $subitemIndex }}, expanded: true }"
+                                     x-data="{ subitemIndex: {{ $subitemIndex }}, expanded: @js($errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.name') || $errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.nature') || $errors->has('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.is_active')) }"
                                      class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 transition-all duration-200">
                                     <div class="p-3 cursor-move border border-transparent rounded transition-colors"
                                          :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500': dragOverSubitemIndex === subitemIndex && draggedSubitem !== null && draggedSubitem !== subitemIndex, 'hover:border-green-300 dark:hover:border-green-600': !(dragOverSubitemIndex === subitemIndex && draggedSubitem !== null && draggedSubitem !== subitemIndex) }"
@@ -192,39 +209,45 @@
                                     <div x-show="expanded" x-collapse class="p-3 pt-0">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             <div class="md:col-span-2">
-                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Nama Work Order</label>
+                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Nama Work Order <span class="text-red-500">*</span></label>
                                                 <input wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.name" type="text"
-                                                    class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                                                    placeholder="Masukkan nama work order">
-                                            </div>
-                                            <div class="md:col-span-2">
-                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Uraian</label>
-                                                <textarea wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.description" rows="3"
-                                                    class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                                                    placeholder="Masukkan uraian work order"></textarea>
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Sifat</label>
-                                                <select wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.nature"
-                                                    @if($item['nature'] === 'mandatory') disabled @endif
-                                                    class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white @if($item['nature'] === 'mandatory') opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800 @endif">
-                                                    <option value="mandatory">Wajib</option>
-                                                    <option value="optional">Opsional</option>
-                                                </select>
-                                                @if($item['nature'] === 'mandatory')
-                                                    <p class="text-xs text-orange-600 dark:text-orange-400 mt-0.5">Item parent wajib, subitem harus wajib</p>
-                                                @endif
-                                                @error('workOrderItems.' . $itemIndex . '.subitems.' . $subitemIndex . '.nature')
+                                                    class="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
+                                                    placeholder="Masukkan nama work order (wajib)">
+                                                @error('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.name')
                                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                 @enderror
                                             </div>
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Uraian</label>
+                                                <textarea wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.description" rows="2"
+                                                    class="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
+                                                    placeholder="Masukkan uraian work order"></textarea>
+                                            </div>
                                             <div>
-                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Status</label>
+                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Sifat <span class="text-red-500">*</span></label>
+                                                <select wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.nature"
+                                                    @if($item['nature'] === 'mandatory') disabled @endif
+                                                    class="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200 @if($item['nature'] === 'mandatory') opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800 @endif">
+                                                    <option value="mandatory">Wajib</option>
+                                                    <option value="optional">Opsional</option>
+                                                </select>
+                                                @error('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.nature')
+                                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                                @enderror
+                                                @if($item['nature'] === 'mandatory')
+                                                    <p class="text-xs text-orange-600 dark:text-orange-400 mt-0.5">Item parent wajib, subitem harus wajib</p>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Status <span class="text-red-500">*</span></label>
                                                 <select wire:model="workOrderItems.{{ $itemIndex }}.subitems.{{ $subitemIndex }}.is_active"
-                                                    class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                                    class="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200">
                                                     <option value="1">Aktif</option>
                                                     <option value="0">Tidak Aktif</option>
                                                 </select>
+                                                @error('workOrderItems.'.$itemIndex.'.subitems.'.$subitemIndex.'.is_active')
+                                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
@@ -259,5 +282,6 @@
                 </p>
             </div>
         @endforelse
+    </div>
     </div>
 </div>

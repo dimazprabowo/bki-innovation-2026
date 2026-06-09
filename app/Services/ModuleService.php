@@ -86,7 +86,7 @@ class ModuleService
             if (isset($data['tools'])) {
                 foreach ($data['tools'] as $toolData) {
                     $module->tools()->create([
-                        'name' => $toolData['name'],
+                        'peralatan_id' => $toolData['peralatan_id'] ?? null,
                         'requires_calibration' => $toolData['requires_calibration'] ?? false,
                         'quantity' => $toolData['quantity'] ?? 1,
                     ]);
@@ -231,7 +231,7 @@ class ModuleService
                 $module->tools()->delete();
                 foreach ($data['tools'] as $toolData) {
                     $module->tools()->create([
-                        'name' => $toolData['name'],
+                        'peralatan_id' => $toolData['peralatan_id'] ?? null,
                         'requires_calibration' => $toolData['requires_calibration'] ?? false,
                         'quantity' => $toolData['quantity'] ?? 1,
                     ]);

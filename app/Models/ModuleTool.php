@@ -12,7 +12,7 @@ class ModuleTool extends Model
 
     protected $fillable = [
         'module_id',
-        'name',
+        'peralatan_id',
         'requires_calibration',
         'quantity',
     ];
@@ -25,6 +25,11 @@ class ModuleTool extends Model
     public function module()
     {
         return $this->belongsTo(Module::class);
+    }
+
+    public function peralatan()
+    {
+        return $this->belongsTo(Peralatan::class);
     }
 
     public function getRequiresCalibrationLabelAttribute(): string

@@ -305,7 +305,15 @@ class PeralatanForm extends Component
 
     public function save(PeralatanService $service)
     {
-        $this->validate();
+        $this->withValidator(function ($validator) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                $message = count($errors) > 1 
+                    ? 'Terdapat ' . count($errors) . ' kesalahan validasi' 
+                    : $errors[0];
+                $this->dispatch('notify', type: 'error', message: $message);
+            }
+        })->validate();
 
         try {
             $data = [

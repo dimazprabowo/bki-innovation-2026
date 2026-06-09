@@ -25,14 +25,14 @@
 
                 </div>
 
-                <x-module-work-order-items-section :workOrderItems="$workOrderItems" />
-
                 <!-- Work Order References -->
                 <x-module-reference-section :workOrderReferences="$workOrderReferences" />
 
+                <x-module-work-order-items-section :workOrderItems="$workOrderItems" />
+
                 <x-module-teams-section :teams="$teams" :competencies="$competencies" />
 
-                <x-module-tools-section :tools="$tools" />
+                <x-module-tools-section :tools="$tools" :peralatans="$peralatans" />
 
                 <x-module-deliverables-section :deliverables="$deliverables" />
 

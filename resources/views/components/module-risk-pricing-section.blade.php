@@ -1,7 +1,19 @@
 @props(['riskLevels' => []])
 
-<div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
-    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Risk & Pricing</h4>
+<div x-data="{ expanded: true }" class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
+    <div class="flex items-center justify-between mb-3">
+        <button type="button" @click="expanded = !expanded" class="flex items-center gap-2 group">
+            <svg x-show="expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <svg x-show="!expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Risk & Pricing</h4>
+        </button>
+    </div>
+
+    <div x-show="expanded" x-collapse>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -18,7 +30,7 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Dasar</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Dasar <span class="text-red-500">*</span></label>
             <div x-data="{
                 displayValue: '{{ $pricing_baseline ?? '' }}',
                 formatValue(value) {
@@ -51,9 +63,9 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durasi (Hari)</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durasi (Hari) <span class="text-red-500">*</span></label>
             <input wire:model="duration" type="number" min="0"
-                placeholder="Masukkan durasi"
+                placeholder="Masukkan durasi (wajib)"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
             @error('duration') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
@@ -69,5 +81,6 @@
             </select>
             @error('is_active') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
+    </div>
     </div>
 </div>

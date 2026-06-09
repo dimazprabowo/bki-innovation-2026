@@ -1,13 +1,19 @@
 @props(['teams' => [], 'competencies' => []])
 
-<div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
+<div x-data="{ expanded: true }" class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
     <div class="flex items-center justify-between mb-3">
-        <div class="flex flex-col sm:flex-row sm:items-center">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Tim Pelaksana</h4>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($teams) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif sm:ml-2 mt-1 sm:mt-0">
+        <button type="button" @click="expanded = !expanded" class="flex items-center gap-2 group">
+            <svg x-show="expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <svg x-show="!expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Tim Pelaksana</h4>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($teams) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
                 {{ count($teams) }} tim
             </span>
-        </div>
+        </button>
         <button type="button" wire:click="addTeam" wire:key="add-team-btn"
             wire:loading.attr="disabled" wire:target="addTeam"
             class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors whitespace-nowrap">
@@ -25,31 +31,31 @@
         </button>
     </div>
 
+    <div x-show="expanded" x-collapse>
+
     @forelse($teams as $teamIndex => $team)
         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 mb-3 border border-gray-200 dark:border-gray-700">
             <div class="flex items-start gap-3">
-                <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Jabatan</label>
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Jabatan <span class="text-red-500">*</span></label>
                         <input wire:model="teams.{{ $teamIndex }}.position_name" type="text"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                            placeholder="Masukkan nama jabatan">
+                            class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
+                            placeholder="Masukkan nama jabatan (wajib)">
+                        @error('teams.'.$teamIndex.'.position_name')
+                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Jumlah</label>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Jumlah <span class="text-red-500">*</span></label>
                         <input wire:model="teams.{{ $teamIndex }}.quantity" type="number" min="1"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                            placeholder="Masukkan jumlah">
+                            class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200"
+                            placeholder="Masukkan jumlah (wajib)">
+                        @error('teams.'.$teamIndex.'.quantity')
+                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sifat</label>
-                        <select wire:model="teams.{{ $teamIndex }}.nature"
-                            class="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                            <option value="mandatory">Wajib</option>
-                            <option value="optional">Opsional</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-3">
                         <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kompetensi</label>
                         <x-multi-searchable-select
                             wire:model.live="teams.{{ $teamIndex }}.competencies"
@@ -57,6 +63,17 @@
                             placeholder="Pilih kompetensi"
                             searchPlaceholder="Cari kompetensi..."
                         />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sifat <span class="text-red-500">*</span></label>
+                        <select wire:model="teams.{{ $teamIndex }}.nature"
+                            class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-gray-900 dark:text-white dark:focus:ring-blue-500/40 dark:focus:border-blue-500 transition-all duration-200">
+                            <option value="mandatory">Wajib</option>
+                            <option value="optional">Opsional</option>
+                        </select>
+                        @error('teams.'.$teamIndex.'.nature')
+                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <button type="button" wire:click="removeTeam({{ $teamIndex }})"
@@ -87,4 +104,5 @@
             </p>
         </div>
     @endforelse
+    </div>
 </div>

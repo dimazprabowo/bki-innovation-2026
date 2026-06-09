@@ -1,15 +1,21 @@
 @props(['workOrderReferences'])
 
-<div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
+<div x-data="{ expanded: true }" class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
     <div class="flex items-center justify-between mb-2">
-        <div class="flex flex-col sm:flex-row sm:items-center">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <button type="button" @click="expanded = !expanded" class="flex items-center gap-2 group">
+            <svg x-show="expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <svg x-show="!expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 Referensi Work Order
             </label>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($workOrderReferences) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif sm:ml-2 mt-1 sm:mt-0">
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($workOrderReferences) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
                 {{ count($workOrderReferences) }} referensi
             </span>
-        </div>
+        </button>
         <button type="button" wire:click="addWorkOrderReference" wire:key="add-reference-btn"
             wire:loading.attr="disabled" wire:target="addWorkOrderReference"
             class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors whitespace-nowrap">
@@ -40,6 +46,8 @@
             @endif
         </button>
     </div>
+
+    <div x-show="expanded" x-collapse>
 
     @if(count($workOrderReferences) > 0)
         <div class="space-y-3">
@@ -125,16 +133,18 @@
                         <div class="flex items-start justify-between gap-4 mb-3">
                             <div class="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Dokumen <span class="text-red-500">*</span></label>
                                     <input type="text" wire:model="workOrderReferences.{{ $index }}.document_name"
-                                        placeholder="Nama dokumen (wajib)"
+                                        placeholder="Masukkan nama dokumen (wajib)"
                                         class="w-full px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:focus:ring-blue-600 transition-colors">
-                                    @error('workOrderReferences.' . $index . '.document_name') 
+                                    @error('workOrderReferences.'.$index.'.document_name') 
                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span> 
                                     @enderror
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Document ID</label>
                                     <input type="text" wire:model="workOrderReferences.{{ $index }}.document_id"
-                                        placeholder="Document ID"
+                                        placeholder="Masukkan document ID (opsional)"
                                         class="w-full px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:focus:ring-blue-600 transition-colors">
                                 </div>
                             </div>
@@ -205,7 +215,7 @@
                                 </label>
                             </div>
                         @endif
-                        @error('workOrderReferences.' . $index . '.file') 
+                        @error('workOrderReferences.'.$index.'.file') 
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -229,4 +239,5 @@
             </p>
         </div>
     @endif
+    </div>
 </div>

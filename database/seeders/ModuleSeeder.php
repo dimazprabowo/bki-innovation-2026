@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\RiskLevel;
 use App\Models\Module;
 use App\Models\Competency;
+use App\Models\Peralatan;
 use Illuminate\Database\Seeder;
 
 class ModuleSeeder extends Seeder
@@ -12,6 +13,7 @@ class ModuleSeeder extends Seeder
     public function run(): void
     {
         $competencies = Competency::all();
+        $peralatans = Peralatan::all();
 
         $modules = [
             [
@@ -54,8 +56,8 @@ class ModuleSeeder extends Seeder
                     ['position_name' => 'Asisten Surveyor', 'quantity' => 1, 'nature' => 'mandatory', 'competencies' => $competencies->take(1)->pluck('id')->toArray()],
                 ],
                 'tools' => [
-                    ['name' => 'Ultrasonic Thickness Gauge', 'requires_calibration' => true, 'quantity' => 2],
-                    ['name' => 'Camera', 'requires_calibration' => false, 'quantity' => 1],
+                    ['peralatan_id' => $peralatans->where('name', 'Ultrasonic Testing Equipment')->first()?->id, 'requires_calibration' => true, 'quantity' => 2],
+                    ['peralatan_id' => $peralatans->where('name', 'Visual Testing Equipment')->first()?->id, 'requires_calibration' => false, 'quantity' => 1],
                 ],
                 'deliverables' => [
                     ['order' => 1, 'name' => 'Laporan Inspeksi', 'description' => 'Laporan lengkap inspeksi', 'nature' => 'mandatory', 'is_active' => true],
@@ -94,7 +96,7 @@ class ModuleSeeder extends Seeder
                     ['position_name' => 'Welding Inspector', 'quantity' => 1, 'nature' => 'mandatory', 'competencies' => $competencies->take(1)->pluck('id')->toArray()],
                 ],
                 'tools' => [
-                    ['name' => 'Welding Inspection Gauge', 'requires_calibration' => true, 'quantity' => 1],
+                    ['peralatan_id' => $peralatans->where('name', 'Magnetic Particle Testing Kit')->first()?->id, 'requires_calibration' => true, 'quantity' => 1],
                 ],
                 'deliverables' => [
                     ['order' => 1, 'name' => 'WPS Certificate', 'description' => 'Sertifikat prosedur welding', 'nature' => 'mandatory', 'is_active' => true],

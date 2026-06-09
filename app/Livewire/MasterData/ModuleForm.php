@@ -6,6 +6,7 @@ use App\Enums\RiskLevel;
 use App\Livewire\Traits\HasNotification;
 use App\Models\Module;
 use App\Models\Competency;
+use App\Models\Peralatan;
 use App\Services\ModuleService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
@@ -120,7 +121,7 @@ class ModuleForm extends Component
         $this->tools = $module->tools->map(function ($tool) {
             return [
                 'id' => $tool->id,
-                'name' => $tool->name,
+                'peralatan_id' => $tool->peralatan_id,
                 'requires_calibration' => $tool->requires_calibration,
                 'quantity' => $tool->quantity,
             ];
@@ -144,9 +145,9 @@ class ModuleForm extends Component
         $rules = [
             'code' => ['required', 'string', 'max:50', $this->editMode ? 'unique:modules,code,' . $this->moduleId : 'unique:modules,code'],
             'name' => 'required|string|max:255',
-            'duration' => 'nullable|integer|min:0',
+            'duration' => 'required|integer|min:0',
             'risk_level' => 'required|in:' . implode(',', collect(RiskLevel::cases())->pluck('value')->toArray()),
-            'pricing_baseline' => 'nullable|numeric|min:0',
+            'pricing_baseline' => 'required|numeric|min:0',
             'is_active' => 'required|in:0,1',
             'notes' => 'nullable|string',
             'workOrderItems' => 'array',
@@ -156,13 +157,8 @@ class ModuleForm extends Component
             'deliverables' => 'array',
         ];
 
-        // Validate only non-empty work order references
+        // Validate work order references
         foreach ($this->workOrderReferences as $index => $reference) {
-            // Skip validation if document_name is empty (will be filtered out during save)
-            if (empty($reference['document_name'])) {
-                continue;
-            }
-
             $rules["workOrderReferences.{$index}.document_name"] = 'required|string|max:255';
             
             // Check if this is existing data with file or new data
@@ -175,18 +171,47 @@ class ModuleForm extends Component
             } elseif ($hasExistingFile) {
                 $rules["workOrderReferences.{$index}.file"] = file_upload_validation_rule('work_order_reference', false);
             }
-            // If it's an existing record without file (from seeder), skip file validation
         }
 
-        // Validate work order items: if item is mandatory, all subitems must be mandatory
+        // Validate work order items
         foreach ($this->workOrderItems as $itemIndex => $item) {
-            if (isset($item['nature']) && $item['nature'] === 'mandatory') {
-                if (isset($item['subitems']) && is_array($item['subitems'])) {
-                    foreach ($item['subitems'] as $subitemIndex => $subitem) {
+            $rules["workOrderItems.{$itemIndex}.name"] = 'required|string|max:255';
+            $rules["workOrderItems.{$itemIndex}.nature"] = 'required|in:mandatory,optional';
+            $rules["workOrderItems.{$itemIndex}.is_active"] = 'required|in:0,1';
+
+            // Validate subitems
+            if (isset($item['subitems']) && is_array($item['subitems'])) {
+                foreach ($item['subitems'] as $subitemIndex => $subitem) {
+                    $rules["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.name"] = 'required|string|max:255';
+                    $rules["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.nature"] = 'required|in:mandatory,optional';
+                    $rules["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.is_active"] = 'required|in:0,1';
+
+                    // If parent is mandatory, subitem must be mandatory
+                    if (isset($item['nature']) && $item['nature'] === 'mandatory') {
                         $rules["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.nature"] = 'required|in:mandatory';
                     }
                 }
             }
+        }
+
+        // Validate teams
+        foreach ($this->teams as $teamIndex => $team) {
+            $rules["teams.{$teamIndex}.position_name"] = 'required|string|max:255';
+            $rules["teams.{$teamIndex}.quantity"] = 'required|integer|min:1';
+            $rules["teams.{$teamIndex}.nature"] = 'required|in:mandatory,optional';
+        }
+
+        // Validate tools
+        foreach ($this->tools as $toolIndex => $tool) {
+            $rules["tools.{$toolIndex}.peralatan_id"] = 'required|exists:peralatans,id';
+            $rules["tools.{$toolIndex}.quantity"] = 'required|integer|min:1';
+        }
+
+        // Validate deliverables
+        foreach ($this->deliverables as $delIndex => $deliverable) {
+            $rules["deliverables.{$delIndex}.name"] = 'required|string|max:255';
+            $rules["deliverables.{$delIndex}.nature"] = 'required|in:mandatory,optional';
+            $rules["deliverables.{$delIndex}.is_active"] = 'required|in:0,1';
         }
 
         return $rules;
@@ -213,14 +238,108 @@ class ModuleForm extends Component
 
         // Add dynamic attributes for work order items
         foreach ($this->workOrderItems as $itemIndex => $item) {
+            $attributes["workOrderItems.{$itemIndex}.name"] = 'nama item #' . ($itemIndex + 1);
+            $attributes["workOrderItems.{$itemIndex}.nature"] = 'sifat item #' . ($itemIndex + 1);
+            $attributes["workOrderItems.{$itemIndex}.is_active"] = 'status item #' . ($itemIndex + 1);
+            
             if (isset($item['subitems']) && is_array($item['subitems'])) {
                 foreach ($item['subitems'] as $subitemIndex => $subitem) {
+                    $attributes["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.name"] = 'nama work order subitem #' . ($subitemIndex + 1) . ' dari item #' . ($itemIndex + 1);
                     $attributes["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.nature"] = 'sifat subitem #' . ($subitemIndex + 1) . ' dari item #' . ($itemIndex + 1);
+                    $attributes["workOrderItems.{$itemIndex}.subitems.{$subitemIndex}.is_active"] = 'status subitem #' . ($subitemIndex + 1) . ' dari item #' . ($itemIndex + 1);
                 }
             }
         }
 
+        // Add dynamic attributes for teams
+        foreach ($this->teams as $teamIndex => $team) {
+            $attributes["teams.{$teamIndex}.position_name"] = 'nama jabatan tim #' . ($teamIndex + 1);
+            $attributes["teams.{$teamIndex}.quantity"] = 'jumlah tim #' . ($teamIndex + 1);
+            $attributes["teams.{$teamIndex}.nature"] = 'sifat tim #' . ($teamIndex + 1);
+        }
+
+        // Add dynamic attributes for tools
+        foreach ($this->tools as $toolIndex => $tool) {
+            $attributes["tools.{$toolIndex}.peralatan_id"] = 'nama alat #' . ($toolIndex + 1);
+            $attributes["tools.{$toolIndex}.quantity"] = 'jumlah alat #' . ($toolIndex + 1);
+        }
+
+        // Add dynamic attributes for deliverables
+        foreach ($this->deliverables as $delIndex => $deliverable) {
+            $attributes["deliverables.{$delIndex}.name"] = 'nama deliverable #' . ($delIndex + 1);
+            $attributes["deliverables.{$delIndex}.nature"] = 'sifat deliverable #' . ($delIndex + 1);
+            $attributes["deliverables.{$delIndex}.is_active"] = 'status deliverable #' . ($delIndex + 1);
+        }
+
         return $attributes;
+    }
+
+    public function messages()
+    {
+        return [
+            'code.required' => 'Kode modul wajib diisi',
+            'code.unique' => 'Kode modul sudah digunakan',
+            'code.max' => 'Kode modul maksimal 50 karakter',
+            'name.required' => 'Nama modul wajib diisi',
+            'name.max' => 'Nama modul maksimal 255 karakter',
+            'duration.required' => 'Durasi wajib diisi',
+            'duration.integer' => 'Durasi harus berupa angka',
+            'duration.min' => 'Durasi minimal 0',
+            'risk_level.required' => 'Tingkat risiko wajib dipilih',
+            'risk_level.in' => 'Tingkat risiko tidak valid',
+            'pricing_baseline.required' => 'Harga dasar wajib diisi',
+            'pricing_baseline.numeric' => 'Harga dasar harus berupa angka',
+            'pricing_baseline.min' => 'Harga dasar minimal 0',
+            'is_active.required' => 'Status wajib dipilih',
+            'is_active.in' => 'Status tidak valid',
+            
+            // Work Order References
+            'workOrderReferences.*.document_name.required' => 'Nama dokumen referensi wajib diisi',
+            'workOrderReferences.*.document_name.max' => 'Nama dokumen referensi maksimal 255 karakter',
+            'workOrderReferences.*.file.required' => 'File referensi wajib diupload',
+            'workOrderReferences.*.file.mimes' => 'File referensi harus berupa PDF, DOC, DOCX, XLS, atau XLSX',
+            'workOrderReferences.*.file.max' => 'Ukuran file referensi maksimal 10MB',
+            
+            // Work Order Items
+            'workOrderItems.*.name.required' => 'Nama item wajib diisi',
+            'workOrderItems.*.name.max' => 'Nama item maksimal 255 karakter',
+            'workOrderItems.*.nature.required' => 'Sifat item wajib dipilih',
+            'workOrderItems.*.nature.in' => 'Sifat item tidak valid',
+            'workOrderItems.*.is_active.required' => 'Status item wajib dipilih',
+            'workOrderItems.*.is_active.in' => 'Status item tidak valid',
+            
+            // Work Order Subitems
+            'workOrderItems.*.subitems.*.name.required' => 'Nama work order subitem wajib diisi',
+            'workOrderItems.*.subitems.*.name.max' => 'Nama work order subitem maksimal 255 karakter',
+            'workOrderItems.*.subitems.*.nature.required' => 'Sifat subitem wajib dipilih',
+            'workOrderItems.*.subitems.*.nature.in' => 'Sifat subitem tidak valid',
+            'workOrderItems.*.subitems.*.is_active.required' => 'Status subitem wajib dipilih',
+            'workOrderItems.*.subitems.*.is_active.in' => 'Status subitem tidak valid',
+            
+            // Teams
+            'teams.*.position_name.required' => 'Nama jabatan wajib diisi',
+            'teams.*.position_name.max' => 'Nama jabatan maksimal 255 karakter',
+            'teams.*.quantity.required' => 'Jumlah wajib diisi',
+            'teams.*.quantity.integer' => 'Jumlah harus berupa angka',
+            'teams.*.quantity.min' => 'Jumlah minimal 1',
+            'teams.*.nature.required' => 'Sifat wajib dipilih',
+            'teams.*.nature.in' => 'Sifat tidak valid',
+            
+            // Tools
+            'tools.*.peralatan_id.required' => 'Nama alat wajib dipilih',
+            'tools.*.peralatan_id.exists' => 'Alat yang dipilih tidak valid',
+            'tools.*.quantity.required' => 'Jumlah wajib diisi',
+            'tools.*.quantity.integer' => 'Jumlah harus berupa angka',
+            'tools.*.quantity.min' => 'Jumlah minimal 1',
+            
+            // Deliverables
+            'deliverables.*.name.required' => 'Nama deliverable wajib diisi',
+            'deliverables.*.name.max' => 'Nama deliverable maksimal 255 karakter',
+            'deliverables.*.nature.required' => 'Sifat deliverable wajib dipilih',
+            'deliverables.*.nature.in' => 'Sifat deliverable tidak valid',
+            'deliverables.*.is_active.required' => 'Status deliverable wajib dipilih',
+            'deliverables.*.is_active.in' => 'Status deliverable tidak valid',
+        ];
     }
 
     // Auto-update subitem nature when parent item nature changes
@@ -445,7 +564,7 @@ class ModuleForm extends Component
     {
         $this->tools[] = [
             'id' => 'temp_' . uniqid(),
-            'name' => '',
+            'peralatan_id' => null,
             'requires_calibration' => false,
             'quantity' => 1,
         ];
@@ -519,12 +638,15 @@ class ModuleForm extends Component
 
     public function save(ModuleService $service)
     {
-        try {
-            $this->validate();
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->notifyValidationError($e);
-            return;
-        }
+        $this->withValidator(function ($validator) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                $message = count($errors) > 1 
+                    ? 'Terdapat ' . count($errors) . ' kesalahan validasi' 
+                    : $errors[0];
+                $this->dispatch('notify', type: 'error', message: $message);
+            }
+        })->validate();
 
         try {
             $data = [
@@ -641,6 +763,7 @@ class ModuleForm extends Component
         return view('livewire.master-data.module-form', [
             'riskLevels' => RiskLevel::cases(),
             'competencies' => Competency::active()->get(),
+            'peralatans' => Peralatan::active()->orderBy('name')->get(),
         ]);
     }
 }

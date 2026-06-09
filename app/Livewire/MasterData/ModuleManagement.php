@@ -18,27 +18,6 @@ class ModuleManagement extends Component
 
     public $search = '';
     public $riskFilter = '';
-    public $showModal = false;
-    public $editMode = false;
-
-    public $moduleId;
-    public $code;
-    public $name;
-    public $scope;
-    public $method;
-    public $resource;
-    public $duration;
-    public $risk_level = 'low';
-    public $pricing_baseline;
-    public $is_active = 1;
-    public $notes;
-
-    // Nested data structures
-    public $workOrderItems = [];
-    public $workOrderReferences = [];
-    public $teams = [];
-    public $tools = [];
-    public $deliverables = [];
 
     public $showDeleteModal = false;
     public $deletingModuleId;
@@ -47,39 +26,6 @@ class ModuleManagement extends Component
     public function mount()
     {
         $this->authorize('viewAny', Module::class);
-    }
-
-    public function rules()
-    {
-        return [
-            'code' => ['required', 'string', 'max:50', $this->editMode ? 'unique:modules,code,' . $this->moduleId : 'unique:modules,code'],
-            'name' => 'required|string|max:255',
-            'scope' => 'nullable|string',
-            'method' => 'nullable|string|max:255',
-            'resource' => 'nullable|string',
-            'duration' => 'nullable|string|max:255',
-            'deliverable' => 'nullable|string',
-            'risk_level' => ['required', 'string', 'in:' . implode(',', RiskLevel::values())],
-            'pricing_baseline' => 'nullable|numeric|min:0',
-            'is_active' => 'required|in:0,1',
-            'notes' => 'nullable|string',
-        ];
-    }
-
-    public function validationAttributes()
-    {
-        return [
-            'code' => 'kode modul',
-            'name' => 'nama modul',
-            'scope' => 'scope',
-            'method' => 'metode',
-            'resource' => 'resource',
-            'duration' => 'durasi',
-            'risk_level' => 'tingkat risiko',
-            'pricing_baseline' => 'harga baseline',
-            'is_active' => 'status aktif',
-            'notes' => 'catatan',
-        ];
     }
 
     public function updatingSearch()
@@ -103,50 +49,6 @@ class ModuleManagement extends Component
         $module = Module::findOrFail($id);
         $this->authorize('update', $module);
         return $this->redirect(route('master-data.modules.edit', $module), navigate: true);
-    }
-
-    public function save(ModuleService $service)
-    {
-        $this->validate();
-
-        try {
-            $data = [
-                'code' => $this->code,
-                'name' => $this->name,
-                'scope' => $this->scope,
-                'method' => $this->method,
-                'resource' => $this->resource,
-                'duration' => $this->duration,
-                'deliverable' => $this->deliverable,
-                'risk_level' => $this->risk_level,
-                'pricing_baseline' => $this->pricing_baseline,
-                'is_active' => $this->is_active,
-                'notes' => $this->notes,
-                'work_order_items' => $this->workOrderItems,
-                'work_order_references' => $this->workOrderReferences,
-                'teams' => $this->teams,
-                'tools' => $this->tools,
-                'deliverables' => $this->deliverables,
-            ];
-
-            if ($this->editMode) {
-                $module = Module::findOrFail($this->moduleId);
-                $this->authorize('update', $module);
-                $service->update($module, $data);
-                $message = 'Modul berhasil diupdate!';
-            } else {
-                $this->authorize('create', Module::class);
-                $service->create($data);
-                $message = 'Modul berhasil ditambahkan!';
-            }
-
-            $this->notifySuccess($message);
-            $this->closeModal();
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            $this->notifyError('Anda tidak memiliki izin untuk melakukan aksi ini.');
-        } catch (\Exception $e) {
-            $this->notifyError('Terjadi kesalahan: ' . $e->getMessage());
-        }
     }
 
     public function confirmDelete($id)
@@ -189,37 +91,6 @@ class ModuleManagement extends Component
         }
     }
 
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->resetForm();
-        $this->resetValidation();
-    }
-
-    private function resetForm()
-    {
-        $this->reset([
-            'moduleId',
-            'code',
-            'name',
-            'scope',
-            'method',
-            'resource',
-            'duration',
-            'risk_level',
-            'pricing_baseline',
-            'is_active',
-            'notes',
-            'workOrderItems',
-            'workOrderReferences',
-            'teams',
-            'tools',
-            'deliverables',
-        ]);
-
-        $this->risk_level = RiskLevel::Low->value;
-        $this->is_active = 1;
-    }
 
     public function exportExcel()
     {
@@ -265,130 +136,6 @@ class ModuleManagement extends Component
                 false
             ),
             'riskLevels' => RiskLevel::cases(),
-            'competencies' => \App\Models\Competency::active()->get(),
         ]);
-    }
-
-    // Helper methods for nested arrays
-    public function addWorkOrderItem()
-    {
-        $this->workOrderItems[] = [
-            'order' => count($this->workOrderItems) + 1,
-            'name' => '',
-            'description' => '',
-            'nature' => 'mandatory',
-            'is_active' => true,
-            'subitems' => [],
-        ];
-    }
-
-    public function removeWorkOrderItem($index)
-    {
-        unset($this->workOrderItems[$index]);
-        $this->workOrderItems = array_values($this->workOrderItems);
-        $this->reorderWorkOrderItems();
-    }
-
-    public function addWorkOrderSubitem($itemIndex)
-    {
-        $this->workOrderItems[$itemIndex]['subitems'][] = [
-            'order' => count($this->workOrderItems[$itemIndex]['subitems']) + 1,
-            'name' => '',
-            'description' => '',
-            'nature' => $this->workOrderItems[$itemIndex]['nature'],
-            'is_active' => true,
-        ];
-    }
-
-    public function removeWorkOrderSubitem($itemIndex, $subitemIndex)
-    {
-        unset($this->workOrderItems[$itemIndex]['subitems'][$subitemIndex]);
-        $this->workOrderItems[$itemIndex]['subitems'] = array_values($this->workOrderItems[$itemIndex]['subitems']);
-        $this->reorderWorkOrderSubitems($itemIndex);
-    }
-
-    public function addWorkOrderReference()
-    {
-        $this->workOrderReferences[] = [
-            'document_name' => '',
-            'document_id' => '',
-            'file_path' => '',
-        ];
-    }
-
-    public function removeWorkOrderReference($index)
-    {
-        unset($this->workOrderReferences[$index]);
-        $this->workOrderReferences = array_values($this->workOrderReferences);
-    }
-
-    public function addTeam()
-    {
-        $this->teams[] = [
-            'position_name' => '',
-            'quantity' => 1,
-            'nature' => 'mandatory',
-            'competencies' => [],
-        ];
-    }
-
-    public function removeTeam($index)
-    {
-        unset($this->teams[$index]);
-        $this->teams = array_values($this->teams);
-    }
-
-    public function addTool()
-    {
-        $this->tools[] = [
-            'name' => '',
-            'requires_calibration' => false,
-            'quantity' => 1,
-        ];
-    }
-
-    public function removeTool($index)
-    {
-        unset($this->tools[$index]);
-        $this->tools = array_values($this->tools);
-    }
-
-    public function addDeliverable()
-    {
-        $this->deliverables[] = [
-            'order' => count($this->deliverables) + 1,
-            'name' => '',
-            'description' => '',
-            'nature' => 'mandatory',
-            'is_active' => true,
-        ];
-    }
-
-    public function removeDeliverable($index)
-    {
-        unset($this->deliverables[$index]);
-        $this->deliverables = array_values($this->deliverables);
-        $this->reorderDeliverables();
-    }
-
-    private function reorderWorkOrderItems()
-    {
-        foreach ($this->workOrderItems as $index => $item) {
-            $this->workOrderItems[$index]['order'] = $index + 1;
-        }
-    }
-
-    private function reorderWorkOrderSubitems($itemIndex)
-    {
-        foreach ($this->workOrderItems[$itemIndex]['subitems'] as $index => $subitem) {
-            $this->workOrderItems[$itemIndex]['subitems'][$index]['order'] = $index + 1;
-        }
-    }
-
-    private function reorderDeliverables()
-    {
-        foreach ($this->deliverables as $index => $deliverable) {
-            $this->deliverables[$index]['order'] = $index + 1;
-        }
     }
 }
