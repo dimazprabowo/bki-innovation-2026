@@ -33,7 +33,6 @@
                 <th style="width: 3%;">No</th>
                 <th style="width: 7%;">Kode</th>
                 <th style="width: 18%;">Nama Modul</th>
-                <th style="width: 13%;">Scope</th>
                 <th style="width: 12%;">Deliverables</th>
                 <th style="width: 7%;">Durasi</th>
                 <th style="width: 7%;">Risk</th>
@@ -48,7 +47,6 @@
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $module->code }}</strong></td>
                     <td>{{ $module->name }}</td>
-                    <td>{{ Str::limit($module->scope ?? '-', 40) }}</td>
                     <td>{{ $module->deliverables->pluck('name')->join(', ') ?: '-' }}</td>
                     <td>{{ $module->duration ?? '-' }}</td>
                     <td>

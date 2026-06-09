@@ -17,9 +17,6 @@ class ModuleSeeder extends Seeder
             [
                 'code' => 'MOD001',
                 'name' => 'Inspeksi Kapal Baru',
-                'scope' => 'Inspeksi menyeluruh untuk kapal baru meliputi struktur, mesin, dan sistem keselamatan',
-                'method' => 'Survey fisik dan dokumentasi',
-                'resource' => '2 Surveyor Senior, 1 Asisten Surveyor',
                 'duration' => '14',
                 'risk_level' => RiskLevel::Medium->value,
                 'pricing_baseline' => 50000000,
@@ -68,9 +65,6 @@ class ModuleSeeder extends Seeder
             [
                 'code' => 'MOD002',
                 'name' => 'Sertifikasi Welding',
-                'scope' => 'Sertifikasi prosedur dan operator welding untuk konstruksi maritim',
-                'method' => 'Uji kualifikasi dan dokumentasi prosedur',
-                'resource' => '1 Welding Inspector, 1 NDT Technician',
                 'duration' => '7',
                 'risk_level' => RiskLevel::Low->value,
                 'pricing_baseline' => 15000000,
@@ -113,9 +107,6 @@ class ModuleSeeder extends Seeder
             $module = Module::create([
                 'code' => $moduleData['code'],
                 'name' => $moduleData['name'],
-                'scope' => $moduleData['scope'],
-                'method' => $moduleData['method'],
-                'resource' => $moduleData['resource'],
                 'duration' => $moduleData['duration'],
                 'risk_level' => $moduleData['risk_level'],
                 'pricing_baseline' => $moduleData['pricing_baseline'],

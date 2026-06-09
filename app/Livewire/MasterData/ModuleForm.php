@@ -34,9 +34,6 @@ class ModuleForm extends Component
 
     public $code;
     public $name;
-    public $scope;
-    public $method;
-    public $resource;
     public $duration;
     public $risk_level = 'low';
     public $pricing_baseline;
@@ -57,9 +54,6 @@ class ModuleForm extends Component
             $this->moduleId = $module->id;
             $this->code = $module->code;
             $this->name = $module->name;
-            $this->scope = $module->scope;
-            $this->method = $module->method;
-            $this->resource = $module->resource;
             $this->duration = $module->duration;
             $this->risk_level = $module->risk_level->value;
             $this->pricing_baseline = $module->pricing_baseline;
@@ -150,9 +144,6 @@ class ModuleForm extends Component
         $rules = [
             'code' => ['required', 'string', 'max:50', $this->editMode ? 'unique:modules,code,' . $this->moduleId : 'unique:modules,code'],
             'name' => 'required|string|max:255',
-            'scope' => 'nullable|string',
-            'method' => 'nullable|string',
-            'resource' => 'nullable|string',
             'duration' => 'nullable|integer|min:0',
             'risk_level' => 'required|in:' . implode(',', collect(RiskLevel::cases())->pluck('value')->toArray()),
             'pricing_baseline' => 'nullable|numeric|min:0',
@@ -176,11 +167,15 @@ class ModuleForm extends Component
             
             // Check if this is existing data with file or new data
             $hasExistingFile = isset($reference['file_name']) && !empty($reference['file_name']);
-            if (!$hasExistingFile) {
+            $isExistingRecord = isset($reference['id']) && !str_starts_with($reference['id'], 'temp_');
+            
+            // Only validate file if it's a new record without existing file
+            if (!$isExistingRecord && !$hasExistingFile) {
                 $rules["workOrderReferences.{$index}.file"] = file_upload_validation_rule('work_order_reference', true);
-            } else {
+            } elseif ($hasExistingFile) {
                 $rules["workOrderReferences.{$index}.file"] = file_upload_validation_rule('work_order_reference', false);
             }
+            // If it's an existing record without file (from seeder), skip file validation
         }
 
         // Validate work order items: if item is mandatory, all subitems must be mandatory
@@ -202,9 +197,6 @@ class ModuleForm extends Component
         $attributes = [
             'code' => 'kode modul',
             'name' => 'nama modul',
-            'scope' => 'scope',
-            'method' => 'metode',
-            'resource' => 'resource',
             'duration' => 'durasi',
             'deliverable' => 'deliverable',
             'risk_level' => 'tingkat risiko',
@@ -538,9 +530,6 @@ class ModuleForm extends Component
             $data = [
                 'code' => $this->code,
                 'name' => $this->name,
-                'scope' => $this->scope,
-                'method' => $this->method,
-                'resource' => $this->resource,
                 'duration' => $this->duration,
                 'risk_level' => $this->risk_level,
                 'pricing_baseline' => $this->pricing_baseline,

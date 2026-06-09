@@ -12,9 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('code', 50)->unique();
             $table->string('name');
-            $table->text('scope')->nullable();
-            $table->string('method')->nullable();
-            $table->text('resource')->nullable();
             $table->string('duration')->nullable();
             $table->enum('risk_level', ['low', 'medium', 'high'])->default('low');
             $table->decimal('pricing_baseline', 15, 2)->nullable();

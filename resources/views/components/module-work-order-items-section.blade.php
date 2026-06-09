@@ -2,7 +2,12 @@
 
 <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-3">
     <div class="flex items-center justify-between mb-3">
-        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Work Order Items</h4>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Work Order Items</h4>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full @if(count($workOrderItems) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif sm:ml-2 mt-1 sm:mt-0">
+                {{ count($workOrderItems) }} item
+            </span>
+        </div>
         <button type="button" wire:click="addWorkOrderItem" wire:key="add-work-order-item-btn"
             wire:loading.attr="disabled" wire:target="addWorkOrderItem"
             class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors whitespace-nowrap">
@@ -135,9 +140,9 @@
                                 <div wire:key="subitem-{{ $itemIndex }}-{{ $subitemIndex }}"
                                      data-subitem-index="{{ $subitemIndex }}"
                                      x-data="{ subitemIndex: {{ $subitemIndex }}, expanded: true }"
-                                     :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500': dragOverSubitemIndex === subitemIndex && draggedSubitem !== null && draggedSubitem !== subitemIndex }"
                                      class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 transition-all duration-200">
-                                    <div class="p-3 cursor-move hover:border-green-300 dark:hover:border-green-600 transition-colors"
+                                    <div class="p-3 cursor-move border border-transparent rounded transition-colors"
+                                         :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500': dragOverSubitemIndex === subitemIndex && draggedSubitem !== null && draggedSubitem !== subitemIndex, 'hover:border-green-300 dark:hover:border-green-600': !(dragOverSubitemIndex === subitemIndex && draggedSubitem !== null && draggedSubitem !== subitemIndex) }"
                                          draggable="true"
                                          @dragstart="draggedSubitem = subitemIndex; $el.classList.add('opacity-50', 'ring-2', 'ring-green-500')"
                                          @dragend="draggedSubitem = null; dragOverSubitemIndex = null; $el.classList.remove('opacity-50', 'ring-2', 'ring-green-500')"

@@ -21,37 +21,6 @@
             @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
         </div>
 
-        <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scope</label>
-            <textarea wire:model="scope" rows="2"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Deskripsi scope pekerjaan"></textarea>
-            @error('scope') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metode</label>
-            <input wire:model="method" type="text"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Metode pelaksanaan">
-            @error('method') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-        </div>
-
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durasi (Hari)</label>
-            <input wire:model="duration" type="number" min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Contoh: 30">
-            @error('duration') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-        </div>
-
-        <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resource</label>
-            <textarea wire:model="resource" rows="2"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Deskripsi resource yang dibutuhkan"></textarea>
-            @error('resource') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-        </div>
     </div>
 
     <!-- Work Order Items -->
@@ -410,6 +379,14 @@
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     placeholder="0">
                 @error('pricing_baseline') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durasi (Hari)</label>
+                <input wire:model="duration" type="number" min="0"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Contoh: 30">
+                @error('duration') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
 
             <div>

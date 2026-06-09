@@ -31,8 +31,7 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('code', 'like', "%{$this->search}%")
-                  ->orWhere('name', 'like', "%{$this->search}%")
-                  ->orWhere('scope', 'like', "%{$this->search}%");
+                  ->orWhere('name', 'like', "%{$this->search}%");
             });
         }
 
@@ -49,9 +48,6 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
             'No',
             'Kode',
             'Nama Modul',
-            'Scope',
-            'Metode',
-            'Resource',
             'Durasi',
             'Deliverable',
             'Risk Level',
@@ -74,9 +70,6 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
             $no,
             $module->code,
             $module->name,
-            $module->scope ?? '-',
-            $module->method ?? '-',
-            $module->resource ?? '-',
             $module->duration ?? '-',
             $deliverables,
             $module->risk_level->label(),

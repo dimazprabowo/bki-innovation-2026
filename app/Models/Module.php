@@ -15,9 +15,6 @@ class Module extends Model
     protected $fillable = [
         'code',
         'name',
-        'scope',
-        'method',
-        'resource',
         'duration',
         'risk_level',
         'pricing_baseline',
@@ -81,8 +78,7 @@ class Module extends Model
         if ($search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhere('scope', 'like', "%{$search}%");
+                  ->orWhere('name', 'like', "%{$search}%");
             });
         }
         return $query;
