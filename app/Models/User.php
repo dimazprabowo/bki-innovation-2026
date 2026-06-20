@@ -61,12 +61,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withTimestamps();
     }
 
-    public function projectResources(): BelongsToMany
-    {
-        return $this->belongsToMany(Project::class, 'project_resources')
-            ->withTimestamps();
-    }
-
     // Scopes
     public function scopeActive($query)
     {
@@ -92,13 +86,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getFullNameAttribute(): string
     {
         return $this->name . ($this->position ? " ({$this->position})" : '');
-    }
-
-    public function getActiveProjectsCountAttribute(): int
-    {
-        return $this->projectResources()
-            ->whereIn('status', ['draft', 'coe_review', 'approved'])
-            ->count();
     }
 
     /**

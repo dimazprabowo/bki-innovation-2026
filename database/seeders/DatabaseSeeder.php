@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             SystemConfigurationSeeder::class,
             UserSeeder::class,
-            ModuleSeeder::class,
             CompetencySeeder::class,
-            PersonelSeeder::class,
             PeralatanSeeder::class,
+            PersonelSeeder::class,
+            ModuleSeeder::class,
             ProjectSeeder::class,
         ]);
     }

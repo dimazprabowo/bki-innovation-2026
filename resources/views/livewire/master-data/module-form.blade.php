@@ -30,7 +30,7 @@
 
                 <x-module-work-order-items-section :workOrderItems="$workOrderItems" />
 
-                <x-module-teams-section :teams="$teams" :competencies="$competencies" />
+                <x-module-personels-section :personels="$personels" :competencies="$competencies" />
 
                 <x-module-tools-section :tools="$tools" :peralatans="$peralatans" />
 
@@ -88,13 +88,13 @@
         confirmMethod="confirmDeleteWorkOrderReference"
     />
 
-    {{-- Delete Team Modal --}}
+    {{-- Delete Personel Modal --}}
     <x-delete-modal
-        :show="$showDeleteTeamModal"
-        wire:model="showDeleteTeamModal"
-        title="Hapus Tim"
-        message="Apakah Anda yakin ingin menghapus tim ini?"
-        confirmMethod="confirmDeleteTeam"
+        :show="$showDeletePersonelModal"
+        wire:model="showDeletePersonelModal"
+        title="Hapus Personel"
+        message="Apakah Anda yakin ingin menghapus personel ini?"
+        confirmMethod="confirmDeletePersonel"
     />
 
     {{-- Delete Tool Modal --}}

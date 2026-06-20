@@ -6,23 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ProjectEquipment extends Model
+class ProjectAdditionalCost extends Model
 {
     use HasFactory;
-
-    protected $table = 'project_equipments';
 
     protected $fillable = [
         'project_id',
         'name',
-        'specification',
-        'quantity',
-        'unit',
+        'amount',
         'notes',
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
+        'amount' => 'decimal:2',
     ];
 
     public function project(): BelongsTo

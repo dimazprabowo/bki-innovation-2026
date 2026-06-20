@@ -38,6 +38,11 @@ class Personel extends Model
             ->withTimestamps();
     }
 
+    public function projectPersonels()
+    {
+        return $this->hasMany(ProjectPersonel::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

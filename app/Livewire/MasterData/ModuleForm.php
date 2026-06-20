@@ -23,13 +23,13 @@ class ModuleForm extends Component
     public $showDeleteWorkOrderItemModal = false;
     public $showDeleteWorkOrderSubitemModal = false;
     public $showDeleteWorkOrderReferenceModal = false;
-    public $showDeleteTeamModal = false;
+    public $showDeletePersonelModal = false;
     public $showDeleteToolModal = false;
     public $showDeleteDeliverableModal = false;
     public $deletingWorkOrderItemIndex = null;
     public $deletingWorkOrderSubitemIndices = [];
     public $deletingWorkOrderReferenceIndex = null;
-    public $deletingTeamIndex = null;
+    public $deletingPersonelIndex = null;
     public $deletingToolIndex = null;
     public $deletingDeliverableIndex = null;
 
@@ -47,7 +47,7 @@ class ModuleForm extends Component
     // Nested data structures
     public $workOrderItems = [];
     public $workOrderReferences = [];
-    public $teams = [];
+    public $personels = [];
     public $tools = [];
     public $deliverables = [];
 
@@ -109,14 +109,14 @@ class ModuleForm extends Component
             ];
         })->toArray();
 
-        // Load teams
-        $this->teams = $module->teams->map(function ($team) {
+        // Load personels
+        $this->personels = $module->personels->map(function ($personel) {
             return [
-                'id' => $team->id,
-                'position_name' => $team->position_name,
-                'quantity' => $team->quantity,
-                'nature' => $team->nature,
-                'competencies' => $team->competencies->pluck('id')->toArray(),
+                'id' => $personel->id,
+                'position_name' => $personel->position_name,
+                'quantity' => $personel->quantity,
+                'nature' => $personel->nature,
+                'competencies' => $personel->competencies->pluck('id')->toArray(),
             ];
         })->toArray();
 
@@ -155,7 +155,7 @@ class ModuleForm extends Component
             'notes' => 'nullable|string',
             'workOrderItems' => 'array',
             'workOrderReferences' => 'array',
-            'teams' => 'array',
+            'personels' => 'array',
             'tools' => 'array',
             'deliverables' => 'array',
         ];
@@ -197,11 +197,11 @@ class ModuleForm extends Component
             }
         }
 
-        // Validate teams
-        foreach ($this->teams as $teamIndex => $team) {
-            $rules["teams.{$teamIndex}.position_name"] = 'required|string|max:255';
-            $rules["teams.{$teamIndex}.quantity"] = 'required|integer|min:1';
-            $rules["teams.{$teamIndex}.nature"] = 'required|in:mandatory,optional';
+        // Validate personels
+        foreach ($this->personels as $personelIndex => $personel) {
+            $rules["personels.{$personelIndex}.position_name"] = 'required|string|max:255';
+            $rules["personels.{$personelIndex}.quantity"] = 'required|integer|min:1';
+            $rules["personels.{$personelIndex}.nature"] = 'required|in:mandatory,optional';
         }
 
         // Validate tools
@@ -254,11 +254,11 @@ class ModuleForm extends Component
             }
         }
 
-        // Add dynamic attributes for teams
-        foreach ($this->teams as $teamIndex => $team) {
-            $attributes["teams.{$teamIndex}.position_name"] = 'nama jabatan tim #' . ($teamIndex + 1);
-            $attributes["teams.{$teamIndex}.quantity"] = 'jumlah tim #' . ($teamIndex + 1);
-            $attributes["teams.{$teamIndex}.nature"] = 'sifat tim #' . ($teamIndex + 1);
+        // Add dynamic attributes for personels
+        foreach ($this->personels as $personelIndex => $personel) {
+            $attributes["personels.{$personelIndex}.position_name"] = 'nama jabatan personel #' . ($personelIndex + 1);
+            $attributes["personels.{$personelIndex}.quantity"] = 'jumlah personel #' . ($personelIndex + 1);
+            $attributes["personels.{$personelIndex}.nature"] = 'sifat personel #' . ($personelIndex + 1);
         }
 
         // Add dynamic attributes for tools
@@ -319,14 +319,14 @@ class ModuleForm extends Component
             'workOrderItems.*.subitems.*.is_active.required' => 'Status subitem wajib dipilih',
             'workOrderItems.*.subitems.*.is_active.in' => 'Status subitem tidak valid',
             
-            // Teams
-            'teams.*.position_name.required' => 'Nama jabatan wajib diisi',
-            'teams.*.position_name.max' => 'Nama jabatan maksimal 255 karakter',
-            'teams.*.quantity.required' => 'Jumlah wajib diisi',
-            'teams.*.quantity.integer' => 'Jumlah harus berupa angka',
-            'teams.*.quantity.min' => 'Jumlah minimal 1',
-            'teams.*.nature.required' => 'Sifat wajib dipilih',
-            'teams.*.nature.in' => 'Sifat tidak valid',
+            // Personels
+            'personels.*.position_name.required' => 'Nama jabatan wajib diisi',
+            'personels.*.position_name.max' => 'Nama jabatan maksimal 255 karakter',
+            'personels.*.quantity.required' => 'Jumlah wajib diisi',
+            'personels.*.quantity.integer' => 'Jumlah harus berupa angka',
+            'personels.*.quantity.min' => 'Jumlah minimal 1',
+            'personels.*.nature.required' => 'Sifat wajib dipilih',
+            'personels.*.nature.in' => 'Sifat tidak valid',
             
             // Tools
             'tools.*.peralatan_id.required' => 'Nama alat wajib dipilih',
@@ -543,9 +543,9 @@ class ModuleForm extends Component
         return \Storage::disk('local')->download($reference['file_path'], $newFileName);
     }
 
-    public function addTeam()
+    public function addPersonel()
     {
-        $this->teams[] = [
+        $this->personels[] = [
             'id' => 'temp_' . uniqid(),
             'position_name' => '',
             'quantity' => 1,
@@ -554,19 +554,19 @@ class ModuleForm extends Component
         ];
     }
 
-    public function removeTeam($index)
+    public function removePersonel($index)
     {
-        $this->deletingTeamIndex = $index;
-        $this->showDeleteTeamModal = true;
+        $this->deletingPersonelIndex = $index;
+        $this->showDeletePersonelModal = true;
     }
 
-    public function confirmDeleteTeam()
+    public function confirmDeletePersonel()
     {
-        if ($this->deletingTeamIndex !== null) {
-            unset($this->teams[$this->deletingTeamIndex]);
-            $this->teams = array_values($this->teams);
-            $this->deletingTeamIndex = null;
-            $this->showDeleteTeamModal = false;
+        if ($this->deletingPersonelIndex !== null) {
+            unset($this->personels[$this->deletingPersonelIndex]);
+            $this->personels = array_values($this->personels);
+            $this->deletingPersonelIndex = null;
+            $this->showDeletePersonelModal = false;
         }
     }
 
@@ -674,7 +674,7 @@ class ModuleForm extends Component
                 'notes' => $this->notes,
                 'work_order_items' => $this->workOrderItems,
                 'work_order_references' => [],
-                'teams' => $this->teams,
+                'personels' => $this->personels,
                 'tools' => $this->tools,
                 'deliverables' => $this->deliverables,
             ];

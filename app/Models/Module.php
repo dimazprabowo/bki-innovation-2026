@@ -45,9 +45,9 @@ class Module extends Model
         return $this->hasMany(WorkOrderReference::class);
     }
 
-    public function teams()
+    public function personels()
     {
-        return $this->hasMany(ModuleTeam::class);
+        return $this->hasMany(ModulePersonel::class);
     }
 
     public function tools()

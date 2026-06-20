@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -34,7 +36,7 @@ class ProjectsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $query->where(function ($q) {
                 $q->where('code', 'like', "%{$this->search}%")
                   ->orWhere('name', 'like', "%{$this->search}%")
-                  ->orWhere('scope', 'like', "%{$this->search}%");
+                  ->orWhere('description', 'like', "%{$this->search}%");
             });
         }
 
@@ -55,13 +57,14 @@ class ProjectsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             'No',
             'Kode',
             'Nama Project',
-            'Scope',
-            'Durasi',
+            'Deskripsi',
+            'Prioritas',
             'Risk Level',
             'CoE Control',
             'Status',
+            'Approval Status',
             'Jumlah Modul',
-            'Total Estimasi',
+            'Total Biaya',
             'Dibuat Oleh',
             'Disetujui Oleh',
             'Tanggal Submit',
@@ -75,27 +78,18 @@ class ProjectsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
         static $no = 0;
         $no++;
 
-        $statuses = [
-            'draft' => 'Draft',
-            'submitted' => 'Submitted',
-            'coe_review' => 'CoE Review',
-            'approved' => 'Approved',
-            'in_progress' => 'In Progress',
-            'completed' => 'Completed',
-            'cancelled' => 'Cancelled',
-        ];
-
         return [
             $no,
             $project->code,
             $project->name,
-            $project->scope ?? '-',
-            $project->duration ?? '-',
+            $project->description ?? '-',
+            $project->priority?->label() ?? '-',
             $project->risk_level->label(),
             $project->coe_control_level->label(),
-            $statuses[$project->status] ?? $project->status,
+            $project->status->label(),
+            $project->approval_status->label(),
             $project->modules_count,
-            $project->total_estimate ? 'Rp ' . number_format($project->total_estimate, 0, ',', '.') : '-',
+            $project->total_cost ? 'Rp ' . number_format($project->total_cost, 0, ',', '.') : '-',
             $project->creator?->name ?? '-',
             $project->approver?->name ?? '-',
             $project->submitted_at?->format('d/m/Y H:i') ?? '-',

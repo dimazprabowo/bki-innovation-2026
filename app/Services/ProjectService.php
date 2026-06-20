@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Enums\ApprovalStatus;
 use App\Enums\CoEControlLevel;
 use App\Enums\ProjectStatus;
 use App\Enums\RiskLevel;
 use App\Models\Project;
+use App\Models\ProjectPersonel;
+use App\Models\ProjectPeralatan;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -14,77 +17,136 @@ class ProjectService
     public function getFiltered(
         ?string $search = null,
         ?string $status = null,
+        ?string $approvalStatus = null,
         ?string $riskLevel = null,
+        ?string $priority = null,
         int $perPage = 10
     ): LengthAwarePaginator {
         return Project::query()
-            ->with(['creator', 'modules'])
+            ->with(['creator', 'approver', 'modules', 'personels'])
             ->search($search)
             ->byStatus($status)
+            ->byApprovalStatus($approvalStatus)
             ->byRiskLevel($riskLevel)
+            ->when($priority, fn ($q) => $q->where('priority', $priority))
             ->withCount('modules')
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }
 
-    public function create(array $data, array $modules = [], array $resources = [], array $equipments = [], array $accommodations = []): Project
+    public function createDraft(array $data): Project
     {
-        return DB::transaction(function () use ($data, $modules, $resources, $equipments, $accommodations) {
+        return DB::transaction(function () use ($data) {
             $data['code'] = strtoupper($data['code']);
             $data['created_by'] = auth()->id();
-            
-            $data['coe_control_level'] = $this->determineCoEControlLevel($data['risk_level']);
-            
-            $project = Project::create($data);
+            $data['status'] = ProjectStatus::Draft->value;
+            $data['approval_status'] = ApprovalStatus::None->value;
 
-            if (!empty($modules)) {
-                $this->syncModules($project, $modules);
-            }
-
-            if (!empty($resources)) {
-                $project->resources()->sync($resources);
-            }
-
-            if (!empty($equipments)) {
-                $this->syncEquipments($project, $equipments);
-            }
-
-            if (!empty($accommodations)) {
-                $this->syncAccommodations($project, $accommodations);
-            }
-
-            return $project->load(['modules', 'resources', 'equipments', 'accommodations']);
-        });
-    }
-
-    public function update(Project $project, array $data, ?array $modules = null, ?array $resources = null, ?array $equipments = null, ?array $accommodations = null): Project
-    {
-        return DB::transaction(function () use ($project, $data, $modules, $resources, $equipments, $accommodations) {
-            $data['code'] = strtoupper($data['code']);
-            
             if (isset($data['risk_level'])) {
                 $data['coe_control_level'] = $this->determineCoEControlLevel($data['risk_level']);
             }
-            
+
+            return Project::create($data);
+        });
+    }
+
+    public function autosave(Project $project, array $data): Project
+    {
+        return DB::transaction(function () use ($project, $data) {
+            if (isset($data['code'])) {
+                $data['code'] = strtoupper($data['code']);
+            }
+
+            if (isset($data['risk_level'])) {
+                $data['coe_control_level'] = $this->determineCoEControlLevel($data['risk_level']);
+            }
+
             $project->update($data);
 
-            if ($modules !== null) {
-                $this->syncModules($project, $modules);
+            return $project->fresh();
+        });
+    }
+
+    public function syncModules(Project $project, array $modules): Project
+    {
+        return DB::transaction(function () use ($project, $modules) {
+            $syncData = [];
+
+            foreach ($modules as $moduleData) {
+                $moduleId = $moduleData['module_id'];
+                $quantity = $moduleData['quantity'] ?? 1;
+                $unitPrice = $moduleData['unit_price'] ?? 0;
+
+                $syncData[$moduleId] = [
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'subtotal' => $quantity * $unitPrice,
+                    'notes' => $moduleData['notes'] ?? null,
+                ];
             }
 
-            if ($resources !== null) {
-                $project->resources()->sync($resources);
+            $project->modules()->sync($syncData);
+
+            return $project->fresh(['modules']);
+        });
+    }
+
+    public function syncPersonels(Project $project, array $personels): Project
+    {
+        return DB::transaction(function () use ($project, $personels) {
+            $project->projectPersonels()->delete();
+
+            foreach ($personels as $personelData) {
+                if (!empty($personelData['personel_id'])) {
+                    ProjectPersonel::create([
+                        'project_id' => $project->id,
+                        'module_id' => $personelData['module_id'] ?? null,
+                        'module_personel_id' => $personelData['module_personel_id'] ?? null,
+                        'personel_id' => $personelData['personel_id'],
+                    ]);
+                }
             }
 
-            if ($equipments !== null) {
-                $this->syncEquipments($project, $equipments);
+            return $project->fresh(['personels']);
+        });
+    }
+
+    public function syncAdditionalCosts(Project $project, array $costs): Project
+    {
+        return DB::transaction(function () use ($project, $costs) {
+            $project->additionalCosts()->delete();
+
+            foreach ($costs as $costData) {
+                if (!empty($costData['name'])) {
+                    $project->additionalCosts()->create([
+                        'name' => $costData['name'],
+                        'amount' => $costData['amount'] ?? 0,
+                        'notes' => $costData['notes'] ?? null,
+                    ]);
+                }
             }
 
-            if ($accommodations !== null) {
-                $this->syncAccommodations($project, $accommodations);
+            return $project->fresh(['additionalCosts']);
+        });
+    }
+
+    public function syncPeralatans(Project $project, array $peralatans): Project
+    {
+        return DB::transaction(function () use ($project, $peralatans) {
+            $project->projectPeralatans()->delete();
+
+            foreach ($peralatans as $data) {
+                if (!empty($data['peralatan_id'])) {
+                    ProjectPeralatan::create([
+                        'project_id' => $project->id,
+                        'module_id' => $data['module_id'] ?? null,
+                        'module_tool_id' => $data['module_tool_id'] ?? null,
+                        'peralatan_id' => $data['peralatan_id'],
+                    ]);
+                }
             }
 
-            return $project->fresh(['modules', 'resources', 'equipments', 'accommodations']);
+            return $project->fresh(['projectPeralatans']);
         });
     }
 
@@ -92,7 +154,9 @@ class ProjectService
     {
         return DB::transaction(function () use ($project) {
             $project->modules()->detach();
-            $project->resources()->detach();
+            $project->projectPersonels()->delete();
+            $project->projectPeralatans()->delete();
+            $project->additionalCosts()->delete();
             return $project->delete();
         });
     }
@@ -100,19 +164,20 @@ class ProjectService
     public function submit(Project $project): Project
     {
         return DB::transaction(function () use ($project) {
-            // Risiko Tinggi → CoE Review
-            // Risiko Rendah/Sedang → Auto-Approve
             if ($project->requiresCoEControl()) {
                 $project->update([
-                    'status' => ProjectStatus::CoEReview->value,
+                    'approval_status' => ApprovalStatus::CoEReview->value,
                     'submitted_at' => now(),
+                    'rejection_reason' => null,
                 ]);
             } else {
                 $project->update([
-                    'status' => ProjectStatus::Approved->value,
+                    'status' => ProjectStatus::Active->value,
+                    'approval_status' => ApprovalStatus::Approved->value,
                     'submitted_at' => now(),
                     'approved_by' => auth()->id(),
                     'approved_at' => now(),
+                    'rejection_reason' => null,
                 ]);
             }
 
@@ -124,10 +189,11 @@ class ProjectService
     {
         return DB::transaction(function () use ($project, $approverId) {
             $project->update([
-                'status' => ProjectStatus::Approved->value,
+                'status' => ProjectStatus::Active->value,
+                'approval_status' => ApprovalStatus::Approved->value,
                 'approved_by' => $approverId,
                 'approved_at' => now(),
-                'rejection_reason' => null, // Clear rejection reason jika ada
+                'rejection_reason' => null,
             ]);
 
             return $project->fresh();
@@ -138,7 +204,7 @@ class ProjectService
     {
         return DB::transaction(function () use ($project, $reason) {
             $project->update([
-                'status' => ProjectStatus::Rejected->value,
+                'approval_status' => ApprovalStatus::Rejected->value,
                 'rejection_reason' => $reason,
             ]);
 
@@ -146,11 +212,11 @@ class ProjectService
         });
     }
 
-    public function stop(Project $project, string $reason): Project
+    public function close(Project $project, string $reason): Project
     {
         return DB::transaction(function () use ($project, $reason) {
             $project->update([
-                'status' => ProjectStatus::Stopped->value,
+                'status' => ProjectStatus::Closed->value,
                 'rejection_reason' => $reason,
             ]);
 
@@ -158,63 +224,19 @@ class ProjectService
         });
     }
 
-    protected function syncModules(Project $project, array $modules): void
+    public function updateStatus(Project $project, ProjectStatus $status): Project
     {
-        $syncData = [];
-        
-        foreach ($modules as $moduleData) {
-            $moduleId = $moduleData['module_id'];
-            $quantity = $moduleData['quantity'] ?? 1;
-            $unitPrice = $moduleData['unit_price'] ?? 0;
-            
-            $syncData[$moduleId] = [
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice,
-                'subtotal' => $quantity * $unitPrice,
-                'notes' => $moduleData['notes'] ?? null,
-            ];
-        }
+        return DB::transaction(function () use ($project, $status) {
+            $data = ['status' => $status->value];
 
-        $project->modules()->sync($syncData);
-    }
-
-    protected function syncEquipments(Project $project, array $equipments): void
-    {
-        // Delete existing equipments
-        $project->equipments()->delete();
-        
-        // Create new equipments
-        foreach ($equipments as $equipmentData) {
-            if (!empty($equipmentData['name'])) {
-                $project->equipments()->create([
-                    'name' => $equipmentData['name'],
-                    'specification' => $equipmentData['specification'] ?? null,
-                    'quantity' => $equipmentData['quantity'] ?? 1,
-                    'unit' => $equipmentData['unit'] ?? null,
-                    'notes' => $equipmentData['notes'] ?? null,
-                ]);
+            if ($status === ProjectStatus::Completed) {
+                $data['actual_end_date'] = now();
             }
-        }
-    }
 
-    protected function syncAccommodations(Project $project, array $accommodations): void
-    {
-        // Delete existing accommodations
-        $project->accommodations()->delete();
-        
-        // Create new accommodations
-        foreach ($accommodations as $accommodationData) {
-            if (!empty($accommodationData['description'])) {
-                $project->accommodations()->create([
-                    'type' => $accommodationData['type'] ?? 'accommodation',
-                    'description' => $accommodationData['description'],
-                    'quantity' => $accommodationData['quantity'] ?? 1,
-                    'unit' => $accommodationData['unit'] ?? null,
-                    'estimated_cost' => $accommodationData['estimated_cost'] ?? 0,
-                    'notes' => $accommodationData['notes'] ?? null,
-                ]);
-            }
-        }
+            $project->update($data);
+
+            return $project->fresh();
+        });
     }
 
     protected function determineCoEControlLevel(string $riskLevel): string

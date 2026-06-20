@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\ApprovalStatus;
 use App\Enums\CoEControlLevel;
+use App\Enums\ProjectPriority;
 use App\Enums\ProjectStatus;
 use App\Enums\RiskLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 
 class Project extends Model
 {
@@ -16,13 +19,15 @@ class Project extends Model
     protected $fillable = [
         'code',
         'name',
-        'scope',
-        'method',
-        'duration',
-        'deliverable',
+        'description',
+        'status',
+        'approval_status',
+        'priority',
+        'start_date',
+        'end_date',
+        'actual_end_date',
         'risk_level',
         'coe_control_level',
-        'status',
         'created_by',
         'approved_by',
         'submitted_at',
@@ -32,9 +37,14 @@ class Project extends Model
     ];
 
     protected $casts = [
+        'status' => ProjectStatus::class,
+        'approval_status' => ApprovalStatus::class,
+        'priority' => ProjectPriority::class,
         'risk_level' => RiskLevel::class,
         'coe_control_level' => CoEControlLevel::class,
-        'status' => ProjectStatus::class,
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'actual_end_date' => 'date',
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
     ];
@@ -56,25 +66,53 @@ class Project extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function resources()
+    public function personels()
     {
-        return $this->belongsToMany(User::class, 'project_resources')
+        return $this->belongsToMany(Personel::class, 'project_personels')
+            ->withPivot(['module_id', 'module_personel_id'])
             ->withTimestamps();
     }
 
-    public function equipments()
+    public function projectPersonels()
     {
-        return $this->hasMany(ProjectEquipment::class);
+        return $this->hasMany(ProjectPersonel::class);
     }
 
-    public function accommodations()
+    public function additionalCosts()
     {
-        return $this->hasMany(ProjectAccommodation::class);
+        return $this->hasMany(ProjectAdditionalCost::class);
     }
 
-    public function getTotalEstimateAttribute()
+    public function projectPeralatans()
     {
-        return $this->modules->sum('pivot.subtotal') ?? 0;
+        return $this->hasMany(ProjectPeralatan::class);
+    }
+
+    public function peralatans()
+    {
+        return $this->belongsToMany(Peralatan::class, 'project_peralatans')
+            ->withPivot(['module_id', 'module_tool_id'])
+            ->withTimestamps();
+    }
+
+    public function getBaseCostAttribute(): float
+    {
+        return (float) ($this->modules->sum('pivot.subtotal') ?? 0);
+    }
+
+    public function getAdditionalCostTotalAttribute(): float
+    {
+        return (float) ($this->additionalCosts->sum('amount') ?? 0);
+    }
+
+    public function getTotalCostAttribute(): float
+    {
+        return $this->base_cost + $this->additional_cost_total;
+    }
+
+    public function getTotalEstimateAttribute(): float
+    {
+        return $this->total_cost;
     }
 
     public function requiresCoEControl(): bool
@@ -98,13 +136,21 @@ class Project extends Model
         return $query;
     }
 
+    public function scopeByApprovalStatus($query, $approvalStatus)
+    {
+        if ($approvalStatus) {
+            return $query->where('approval_status', $approvalStatus);
+        }
+        return $query;
+    }
+
     public function scopeSearch($query, $search)
     {
         if ($search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
                   ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhere('scope', 'like', "%{$search}%");
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
         return $query;
@@ -113,5 +159,20 @@ class Project extends Model
     public function scopeRequiresCoE($query)
     {
         return $query->where('risk_level', RiskLevel::High->value);
+    }
+
+    public function getRouteKey()
+    {
+        return Crypt::encryptString($this->getKey());
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        try {
+            $decryptedId = Crypt::decryptString($value);
+            return $this->where($this->getRouteKeyName(), $decryptedId)->firstOrFail();
+        } catch (\Exception $e) {
+            abort(404);
+        }
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
 
@@ -28,7 +30,8 @@ class ProjectPolicy
             return true;
         }
 
-        return $project->created_by === $user->id && $project->status === 'draft';
+        return $project->created_by === $user->id
+            && $project->status === ProjectStatus::Draft;
     }
 
     public function delete(User $user, Project $project): bool
@@ -37,22 +40,33 @@ class ProjectPolicy
             return true;
         }
 
-        return $project->created_by === $user->id && $project->status === 'draft';
+        return $project->created_by === $user->id
+            && $project->status === ProjectStatus::Draft;
     }
 
     public function submit(User $user, Project $project): bool
     {
-        return $project->created_by === $user->id && $project->status === 'draft';
+        return $project->created_by === $user->id
+            && $project->status === ProjectStatus::Draft
+            && in_array($project->approval_status, [ApprovalStatus::None, ApprovalStatus::Rejected]);
     }
 
     public function approve(User $user, Project $project): bool
     {
-        return $user->can('projects_approve');
+        return $user->can('projects_approve')
+            && $project->approval_status === ApprovalStatus::CoEReview;
     }
 
     public function reject(User $user, Project $project): bool
     {
-        return $user->can('projects_approve');
+        return $user->can('projects_approve')
+            && $project->approval_status === ApprovalStatus::CoEReview;
+    }
+
+    public function close(User $user, Project $project): bool
+    {
+        return $user->can('projects_approve')
+            && in_array($project->status, [ProjectStatus::Active, ProjectStatus::OnProgress, ProjectStatus::Completed]);
     }
 
     public function exportExcel(User $user): bool

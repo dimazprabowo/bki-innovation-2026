@@ -34,15 +34,10 @@
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Dasar <span class="text-red-500">*</span></label>
             <div x-data="{
-                displayValue: '{{ $pricing_baseline ?? '' }}',
+                displayValue: '',
                 formatValue(value) {
                     if (!value || value === '') return '';
-                    return new Intl.NumberFormat('id-ID', {
-                        style: 'currency',
-                        currency: 'IDR',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }).format(value);
+                    return Number(value).toLocaleString('id-ID');
                 },
                 parseValue(value) {
                     if (!value || value === '') return '';
@@ -55,11 +50,14 @@
                     });
                 }
             }">
-                <input type="text"
-                    x-model="displayValue"
-                    @input="$wire.set('pricing_baseline', parseValue($el.value))"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Rp 0">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-500 dark:text-gray-400 pointer-events-none">Rp</span>
+                    <input type="text"
+                        x-model="displayValue"
+                        @input="$wire.set('pricing_baseline', parseValue($el.value))"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white pl-9"
+                        placeholder="0">
+                </div>
                 @error('pricing_baseline') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
         </div>

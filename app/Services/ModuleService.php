@@ -67,18 +67,18 @@ class ModuleService
                 }
             }
 
-            // Handle teams with competencies
-            if (isset($data['teams'])) {
-                foreach ($data['teams'] as $teamData) {
-                    $team = $module->teams()->create([
-                        'position_name' => $teamData['position_name'],
-                        'quantity' => $teamData['quantity'] ?? 1,
-                        'nature' => $teamData['nature'] ?? 'mandatory',
+            // Handle personels with competencies
+            if (isset($data['personels'])) {
+                foreach ($data['personels'] as $personelData) {
+                    $personel = $module->personels()->create([
+                        'position_name' => $personelData['position_name'],
+                        'quantity' => $personelData['quantity'] ?? 1,
+                        'nature' => $personelData['nature'] ?? 'mandatory',
                     ]);
 
                     // Handle competencies
-                    if (isset($teamData['competencies'])) {
-                        $team->competencies()->sync($teamData['competencies']);
+                    if (isset($personelData['competencies'])) {
+                        $personel->competencies()->sync($personelData['competencies']);
                     }
                 }
             }
@@ -107,7 +107,7 @@ class ModuleService
                 }
             }
 
-            return $module->load(['workOrderItems.subitems', 'workOrderReferences', 'teams.competencies', 'tools', 'deliverables']);
+            return $module->load(['workOrderItems.subitems', 'workOrderReferences', 'personels.competencies', 'tools', 'deliverables']);
         });
     }
 
@@ -211,18 +211,18 @@ class ModuleService
                 }
             }
 
-            // Handle teams with competencies
-            if (isset($data['teams'])) {
-                $module->teams()->delete();
-                foreach ($data['teams'] as $teamData) {
-                    $team = $module->teams()->create([
-                        'position_name' => $teamData['position_name'],
-                        'quantity' => $teamData['quantity'] ?? 1,
-                        'nature' => $teamData['nature'] ?? 'mandatory',
+            // Handle personels with competencies
+            if (isset($data['personels'])) {
+                $module->personels()->delete();
+                foreach ($data['personels'] as $personelData) {
+                    $personel = $module->personels()->create([
+                        'position_name' => $personelData['position_name'],
+                        'quantity' => $personelData['quantity'] ?? 1,
+                        'nature' => $personelData['nature'] ?? 'mandatory',
                     ]);
 
-                    if (isset($teamData['competencies'])) {
-                        $team->competencies()->sync($teamData['competencies']);
+                    if (isset($personelData['competencies'])) {
+                        $personel->competencies()->sync($personelData['competencies']);
                     }
                 }
             }
@@ -254,7 +254,7 @@ class ModuleService
             }
         });
 
-        return $module->fresh()->load(['workOrderItems.subitems', 'workOrderReferences', 'teams.competencies', 'tools', 'deliverables']);
+        return $module->fresh()->load(['workOrderItems.subitems', 'workOrderReferences', 'personels.competencies', 'tools', 'deliverables']);
     }
 
     public function delete(Module $module): bool

@@ -81,9 +81,23 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     });
 
     // Projects
-    Route::get('/projects', function () {
-        return view('projects.index');
-    })->middleware('can:projects_view')->name('projects.index');
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', function () {
+            return view('projects.index');
+        })->middleware('can:projects_view')->name('index');
+
+        Route::get('/create', function () {
+            return view('projects.create');
+        })->middleware('can:projects_create')->name('create');
+
+        Route::get('/{project}', function (\App\Models\Project $project) {
+            return view('projects.show', ['project' => $project]);
+        })->middleware('can:projects_view')->name('show');
+
+        Route::get('/{project}/edit', function (\App\Models\Project $project) {
+            return view('projects.edit', ['project' => $project]);
+        })->middleware('can:projects_update')->name('edit');
+    });
 
     // Notifications
     Route::get('/notifications', function () {

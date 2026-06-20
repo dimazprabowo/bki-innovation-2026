@@ -15,6 +15,7 @@
 @php
     $componentId = $id ?? 'searchable-select-' . uniqid();
     $wireModel = $attributes->wire('model')->value();
+    $isLive = $attributes->wire('model')->hasModifier('live');
 @endphp
 
 <div 
@@ -22,21 +23,21 @@
         open: false,
         search: '',
         dropUp: false,
-        value: @entangle($wireModel),
+        value: @if($isLive) @entangle($wireModel).live @else @entangle($wireModel) @endif,
         options: @js($options),
         placeholder: @js($placeholder),
 
         get filteredOptions() {
             if (!this.search) return this.options;
             const searchLower = this.search.toLowerCase();
-            return this.options.filter(option =>
-                option.label.toLowerCase().includes(searchLower) ||
-                (option.sublabel && option.sublabel.toLowerCase().includes(searchLower))
-            );
+            return this.options.filter(function(option) {
+                return option.label.toLowerCase().includes(searchLower) ||
+                (option.sublabel && option.sublabel.toLowerCase().includes(searchLower));
+            });
         },
 
         get selectedOption() {
-            return this.options.find(opt => String(opt.value) === String(this.value)) || null;
+            return this.options.find(function(opt) { return String(opt.value) === String(this.value); }, this) || null;
         },
 
         get displayText() {
@@ -155,12 +156,12 @@
                     x-on:click.stop
                     placeholder="{{ $searchPlaceholder }}"
                     class="block w-full rounded-md border-0 py-2 pl-9 pr-3 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500"
-                    @keydown.enter.prevent="if(filteredOptions.length > 0) selectOption(filteredOptions[0])"
+                    @keydown.enter.prevent="if(filteredOptions.length) selectOption(filteredOptions[0])"
                 >
                 {{-- Clear Search Button --}}
                 <button
                     type="button"
-                    x-show="search.length > 0"
+                    x-show="search.length"
                     x-on:click.stop="search = ''"
                     class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
@@ -210,12 +211,21 @@
                                 :class="String(value) === String(option.value) ? 'font-semibold text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'"
                                 class="block truncate"
                             ></span>
-                            <template x-if="option.sublabel">
-                                <span 
-                                    x-text="option.sublabel"
-                                    class="block truncate text-xs text-gray-500 dark:text-gray-400 mt-0.5"
-                                ></span>
-                            </template>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <template x-if="option.sublabel">
+                                    <span 
+                                        x-text="option.sublabel"
+                                        class="truncate text-xs text-gray-500 dark:text-gray-400"
+                                    ></span>
+                                </template>
+                                <template x-if="option.badge">
+                                    <span 
+                                        x-text="option.badge"
+                                        :class="option.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
+                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
+                                    ></span>
+                                </template>
+                            </div>
                         </div>
                         {{-- Check Icon --}}
                         <template x-if="String(value) === String(option.value)">
@@ -228,7 +238,7 @@
             </template>
 
             {{-- No Results --}}
-            <template x-if="filteredOptions.length === 0 && search.length > 0">
+            <template x-if="filteredOptions.length === 0 && search.length">
                 <li class="relative cursor-default select-none py-4 px-4 text-center">
                     <div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

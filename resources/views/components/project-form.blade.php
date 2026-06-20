@@ -361,11 +361,17 @@
                                         class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                                         placeholder="hari, trip">
                                 </div>
-                                <div class="col-span-4 md:col-span-2">
+                                <div class="col-span-4 md:col-span-2" x-data="{ formattedCost: '' }"
+                                     x-init="formattedCost = $wire.selectedAccommodations[{{ $index }}].estimated_cost ? Number($wire.selectedAccommodations[{{ $index }}].estimated_cost).toLocaleString('id-ID') : ''">
                                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Est. Biaya</label>
-                                    <input wire:model="selectedAccommodations.{{ $index }}.estimated_cost" type="number" min="0"
-                                        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                                        placeholder="0">
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-500 dark:text-gray-400 pointer-events-none">Rp</span>
+                                        <input x-ref="costInput" type="text" inputmode="numeric"
+                                            :value="formattedCost"
+                                            @input="$wire.selectedAccommodations[{{ $index }}].estimated_cost = $event.target.value.replace(/[^0-9]/g, '') || ''; formattedCost = $event.target.value.replace(/[^0-9]/g, '') ? parseInt($event.target.value.replace(/[^0-9]/g, '')).toLocaleString('id-ID') : ''"
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white pl-9"
+                                            placeholder="0">
+                                    </div>
                                 </div>
                             </div>
                         </div>

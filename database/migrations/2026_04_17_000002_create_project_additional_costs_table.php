@@ -8,20 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('project_equipments', function (Blueprint $table) {
+        Schema::create('project_additional_costs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('specification')->nullable();
-            $table->integer('quantity')->default(1);
-            $table->string('unit')->nullable();
+            $table->decimal('amount', 15, 2)->default(0);
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->index('project_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('project_equipments');
+        Schema::dropIfExists('project_additional_costs');
     }
 };

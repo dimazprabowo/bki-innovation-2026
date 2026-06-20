@@ -38,11 +38,10 @@
                 <th style="width: 4%;">No</th>
                 <th style="width: 8%;">Kode</th>
                 <th style="width: 20%;">Nama Project</th>
-                <th style="width: 15%;">Scope</th>
-                <th style="width: 8%;">Durasi</th>
+                <th style="width: 8%;">Prioritas</th>
                 <th style="width: 8%;">Risk</th>
-                <th style="width: 10%;">CoE</th>
                 <th style="width: 10%;">Status</th>
+                <th style="width: 10%;">Approval</th>
                 <th style="width: 5%;">Modul</th>
                 <th style="width: 12%;">Total</th>
             </tr>
@@ -53,8 +52,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $project->code }}</strong></td>
                     <td>{{ $project->name }}</td>
-                    <td>{{ Str::limit($project->scope ?? '-', 50) }}</td>
-                    <td>{{ $project->duration ?? '-' }}</td>
+                    <td>{{ $project->priority?->label() ?? '-' }}</td>
                     <td>
                         @php
                             $riskBadge = match($project->risk_level->value) {
@@ -68,35 +66,37 @@
                             {{ $project->risk_level->label() }}
                         </span>
                     </td>
-                    <td>{{ $project->coe_control_level->label() }}</td>
                     <td>
                         @php
-                            $statusBadge = match($project->status) {
+                            $statusBadge = match($project->status->value) {
                                 'draft' => 'badge-draft',
-                                'submitted' => 'badge-submitted',
-                                'coe_review' => 'badge-coe',
-                                'approved' => 'badge-approved',
-                                'in_progress' => 'badge-progress',
+                                'active' => 'badge-approved',
+                                'on_progress' => 'badge-progress',
                                 'completed' => 'badge-completed',
-                                'cancelled' => 'badge-cancelled',
+                                'closed' => 'badge-cancelled',
                                 default => 'badge-draft',
                             };
-                            $statuses = [
-                                'draft' => 'Draft',
-                                'submitted' => 'Submitted',
-                                'coe_review' => 'CoE Review',
-                                'approved' => 'Approved',
-                                'in_progress' => 'In Progress',
-                                'completed' => 'Completed',
-                                'cancelled' => 'Cancelled',
-                            ];
                         @endphp
                         <span class="badge {{ $statusBadge }}">
-                            {{ $statuses[$project->status] ?? $project->status }}
+                            {{ $project->status->label() }}
+                        </span>
+                    </td>
+                    <td>
+                        @php
+                            $approvalBadge = match($project->approval_status->value) {
+                                'none' => 'badge-draft',
+                                'coe_review' => 'badge-coe',
+                                'approved' => 'badge-approved',
+                                'rejected' => 'badge-cancelled',
+                                default => 'badge-draft',
+                            };
+                        @endphp
+                        <span class="badge {{ $approvalBadge }}">
+                            {{ $project->approval_status->label() }}
                         </span>
                     </td>
                     <td>{{ $project->modules_count }}</td>
-                    <td>{{ $project->total_estimate ? 'Rp ' . number_format($project->total_estimate, 0, ',', '.') : '-' }}</td>
+                    <td>{{ $project->total_cost ? 'Rp ' . number_format($project->total_cost, 0, ',', '.') : '-' }}</td>
                 </tr>
             @endforeach
         </tbody>
