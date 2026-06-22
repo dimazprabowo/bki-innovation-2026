@@ -175,11 +175,17 @@ class ProjectWizard extends Component
     public function personelsForSlot($modulePersonelId): array
     {
         $personel = $this->modulePersonels->firstWhere('id', $modulePersonelId);
+        $matchedClass = 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        $unmatchedClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+
         if (!$personel || $personel->competencies->isEmpty()) {
             return $this->availablePersonels->map(fn ($p) => [
                 'id' => $p->id,
                 'label' => $p->name . ' (' . $p->code . ')',
-                'sublabel' => $p->competencies->pluck('name')->implode(', '),
+                'badges' => $p->competencies->map(fn ($c) => [
+                    'text' => $c->name,
+                    'badgeClass' => $unmatchedClass,
+                ])->values()->toArray(),
             ])->toArray();
         }
 
@@ -190,10 +196,40 @@ class ProjectWizard extends Component
             ->map(fn ($p) => [
                 'id' => $p->id,
                 'label' => $p->name . ' (' . $p->code . ')',
-                'sublabel' => $p->competencies->pluck('name')->implode(', '),
+                'badges' => $p->competencies->map(fn ($c) => [
+                    'text' => $c->name,
+                    'badgeClass' => $requiredCompetencyIds->contains($c->id) ? $matchedClass : $unmatchedClass,
+                ])->values()->toArray(),
             ])
             ->values()
             ->toArray();
+    }
+
+    public function positionCompetencyBadges($modulePersonelId): array
+    {
+        $personel = $this->modulePersonels->firstWhere('id', $modulePersonelId);
+
+        if (!$personel || $personel->competencies->isEmpty()) {
+            return [];
+        }
+
+        $assignedPersonelIds = collect($this->personelAssignments)
+            ->filter(fn ($a) => $a['module_personel_id'] == $modulePersonelId && !empty($a['personel_id']))
+            ->pluck('personel_id')
+            ->unique();
+
+        $assignedCompetencyIds = $this->availablePersonels
+            ->whereIn('id', $assignedPersonelIds)
+            ->flatMap(fn ($p) => $p->competencies->pluck('id'))
+            ->unique();
+
+        $fulfilledClass = 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        $unfulfilledClass = 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+
+        return $personel->competencies->map(fn ($c) => [
+            'text' => $c->name,
+            'badgeClass' => $assignedCompetencyIds->contains($c->id) ? $fulfilledClass : $unfulfilledClass,
+        ])->values()->toArray();
     }
 
     public function generatePersonelAssignments(): void
@@ -830,7 +866,7 @@ class ProjectWizard extends Component
 
             $this->notifySuccess('Draft berhasil disimpan.');
 
-            $this->js("window.history.pushState({}, '', '" . route('projects.edit', $project) . "')");
+            $this->js("window.history.pushState({}, '', '" . route('projects.edit', $project) . "?step=" . $this->currentStep . "')");
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {

@@ -32,7 +32,9 @@
             const searchLower = this.search.toLowerCase();
             return this.options.filter(function(option) {
                 return option.label.toLowerCase().includes(searchLower) ||
-                (option.sublabel && option.sublabel.toLowerCase().includes(searchLower));
+                (option.sublabel && option.sublabel.toLowerCase().includes(searchLower)) ||
+                (option.badge && option.badge.toLowerCase().includes(searchLower)) ||
+                (option.badges && option.badges.some(function(b) { return b.text.toLowerCase().includes(searchLower); }));
             });
         },
 
@@ -102,11 +104,31 @@
                 ($disabled ? ' opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : ' hover:border-gray-400 dark:hover:border-gray-500')
         ]) }}
     >
-        <span
-            x-text="displayText"
-            :class="selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
-            class="block truncate text-sm"
-        ></span>
+        <div class="flex items-center gap-1.5 min-w-0">
+            <span
+                x-text="displayText"
+                :class="selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                class="block truncate text-sm flex-1 min-w-0"
+            ></span>
+            <template x-if="selectedOption && selectedOption.badges && selectedOption.badges.length">
+                <div class="flex items-center gap-1 flex-shrink-0">
+                    <template x-for="b in selectedOption.badges" :key="b.text">
+                        <span
+                            x-text="b.text"
+                            :class="b.badgeClass"
+                            class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
+                        ></span>
+                    </template>
+                </div>
+            </template>
+            <template x-if="selectedOption && (!selectedOption.badges || !selectedOption.badges.length) && selectedOption.badge">
+                <span
+                    x-text="selectedOption.badge"
+                    :class="selectedOption.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
+                ></span>
+            </template>
+        </div>
 
         {{-- Chevron Icon --}}
         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -211,14 +233,23 @@
                                 :class="String(value) === String(option.value) ? 'font-semibold text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'"
                                 class="block truncate"
                             ></span>
-                            <div class="flex items-center gap-1.5 mt-0.5">
+                            <div class="flex items-center gap-1 mt-0.5 flex-wrap">
                                 <template x-if="option.sublabel">
                                     <span 
                                         x-text="option.sublabel"
                                         class="truncate text-xs text-gray-500 dark:text-gray-400"
                                     ></span>
                                 </template>
-                                <template x-if="option.badge">
+                                <template x-if="option.badges && option.badges.length">
+                                    <template x-for="b in option.badges" :key="b.text">
+                                        <span 
+                                            x-text="b.text"
+                                            :class="b.badgeClass"
+                                            class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
+                                        ></span>
+                                    </template>
+                                </template>
+                                <template x-if="(!option.badges || !option.badges.length) && option.badge">
                                     <span 
                                         x-text="option.badge"
                                         :class="option.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"

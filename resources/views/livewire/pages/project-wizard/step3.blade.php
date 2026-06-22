@@ -27,6 +27,7 @@
                 @foreach($byModule as $moduleGroup)
                     @php
                         $module = $moduleGroup['module'];
+                        $moduleKey = 'module-' . $module->id;
                         $positions = $moduleGroup['positions'];
                         $totalSlots = collect($positions)->sum(fn ($p) => count($p['slots']));
 
@@ -41,7 +42,7 @@
                     @endphp
 
                     {{-- Module Section --}}
-                    <div x-data="{ open: true }"
+                    <div wire:key="{{ $moduleKey }}" x-data="{ open: true }"
                          x-effect="let idx = {{ $indicesJson }}; let errs = $wire.errors; for (let k in errs) { if (idx.some(i => k.includes('personelAssignments.' + i + '.'))) { open = true; break; } }"
                          class="rounded-xl border border-gray-200 dark:border-gray-700">
                         {{-- Module Header --}}
@@ -75,21 +76,22 @@
                             @foreach($positions as $position)
                                 @php
                                     $personel = $position['personel'];
-                                    $competencyNames = $personel->competencies->pluck('name')->implode(', ');
+                                    $competencyBadges = $this->positionCompetencyBadges($personel->id);
+                                    $positionKey = 'position-' . $personel->id;
                                 @endphp
-                                <div class="p-4">
+                                <div wire:key="{{ $positionKey }}" class="p-4">
                                     {{-- Position Header --}}
                                     <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                                         <div class="flex items-center gap-2">
                                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $personel->position_name }}</span>
                                             <span class="text-xs text-gray-400">({{ count($position['slots']) }} slot)</span>
                                         </div>
-                                        <div class="flex items-center gap-2">
-                                            @if($competencyNames)
-                                                <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                                                    {{ $competencyNames }}
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            @foreach($competencyBadges as $badge)
+                                                <span wire:key="{{ $positionKey }}-badge-{{ $badge['text'] }}" class="text-xs px-2 py-0.5 rounded-full {{ $badge['badgeClass'] }}">
+                                                    {{ $badge['text'] }}
                                                 </span>
-                                            @endif
+                                            @endforeach
                                             <span class="text-xs px-2 py-0.5 rounded-full {{ $personel->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                                                 {{ $personel->nature === 'mandatory' ? 'Wajib' : 'Opsional' }}
                                             </span>
@@ -101,9 +103,9 @@
                                         @foreach($position['slots'] as $slot)
                                             @php
                                                 $globalIndex = collect($this->personelAssignments)->search(fn ($a) => $a['module_personel_id'] == $personel->id && $a['slot'] == $slot['slot']);
-                                                $personelOptions = collect($this->personelsForSlot($personel->id))->map(fn ($p) => ['value' => $p['id'], 'label' => $p['label'], 'sublabel' => $p['sublabel'] ?? ''])->toArray();
+                                                $personelOptions = collect($this->personelsForSlot($personel->id))->map(fn ($p) => ['value' => $p['id'], 'label' => $p['label'], 'badges' => $p['badges'] ?? []])->toArray();
                                             @endphp
-                                            <div class="flex items-center gap-3 pl-2">
+                                            <div wire:key="{{ $positionKey }}-slot-{{ $slot['slot'] }}" class="flex items-center gap-3 pl-2">
                                                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-xs font-semibold">
                                                     {{ $slot['slot'] }}
                                                 </span>
