@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Livewire\Traits\HasNotification;
 use App\Services\ProjectService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -488,7 +489,7 @@ class ProjectWizard extends Component
     {
         return match ($step) {
             1 => [
-                'code' => 'required|string|max:50',
+                'code' => ['required', 'string', 'max:50', Rule::unique('projects', 'code')->ignore($this->project?->id)],
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'priority' => 'required|in:' . implode(',', ProjectPriority::values()),
@@ -571,7 +572,7 @@ class ProjectWizard extends Component
     public function autosaveStep1(): void
     {
         $step1Rules = [
-            'code' => 'required|string|max:50',
+            'code' => ['required', 'string', 'max:50', Rule::unique('projects', 'code')->ignore($this->project?->id)],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority' => 'required|in:' . implode(',', ProjectPriority::values()),
