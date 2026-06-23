@@ -14,9 +14,10 @@ return new class extends Migration
             $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->foreignId('module_tool_id')->constrained()->cascadeOnDelete();
             $table->foreignId('peralatan_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('slot')->default(1);
             $table->timestamps();
 
-            $table->unique(['project_id', 'module_tool_id', 'peralatan_id'], 'project_tool_peralatan_unique');
+            $table->unique(['project_id', 'module_tool_id', 'slot'], 'project_tool_slot_unique');
             $table->index('project_id');
             $table->index('module_tool_id');
             $table->index('peralatan_id');

@@ -47,10 +47,10 @@
                          class="rounded-xl border border-gray-200 dark:border-gray-700">
                         {{-- Module Header --}}
                         <button type="button" @click="open = !open"
-                            class="w-full px-5 py-4 bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-indigo-900/20 dark:to-indigo-800/10 border-b border-gray-200 dark:border-gray-700 transition-colors hover:from-indigo-100 hover:to-indigo-100/70 dark:hover:from-indigo-900/30 dark:hover:to-indigo-800/15">
-                            <div class="flex items-center gap-3">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full px-3 sm:px-5 py-3 sm:py-4 bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-indigo-900/20 dark:to-indigo-800/10 border-b border-gray-200 dark:border-gray-700 transition-colors hover:from-indigo-100 hover:to-indigo-100/70 dark:hover:from-indigo-900/30 dark:hover:to-indigo-800/15">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <div class="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                     </svg>
                                 </div>
@@ -79,7 +79,7 @@
                                     $competencyBadges = $this->positionCompetencyBadges($personel->id);
                                     $positionKey = 'position-' . $personel->id;
                                 @endphp
-                                <div wire:key="{{ $positionKey }}" class="p-4">
+                                <div wire:key="{{ $positionKey }}" class="p-3 sm:p-4">
                                     {{-- Position Header --}}
                                     <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                                         <div class="flex items-center gap-2">
@@ -99,17 +99,19 @@
                                     </div>
 
                                     {{-- Personel Slots --}}
-                                    <div class="space-y-3">
+                                    @php
+                                        $personelOptions = collect($this->personelsForSlot($personel->id))->map(fn ($p) => ['value' => $p['id'], 'label' => $p['label'], 'badges' => $p['badges'] ?? []])->toArray();
+                                    @endphp
+                                    <div class="space-y-2 sm:space-y-3">
                                         @foreach($position['slots'] as $slot)
                                             @php
                                                 $globalIndex = collect($this->personelAssignments)->search(fn ($a) => $a['module_personel_id'] == $personel->id && $a['slot'] == $slot['slot']);
-                                                $personelOptions = collect($this->personelsForSlot($personel->id))->map(fn ($p) => ['value' => $p['id'], 'label' => $p['label'], 'badges' => $p['badges'] ?? []])->toArray();
                                             @endphp
-                                            <div wire:key="{{ $positionKey }}-slot-{{ $slot['slot'] }}" class="flex items-center gap-3 pl-2">
-                                                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-xs font-semibold">
+                                            <div wire:key="{{ $positionKey }}-slot-{{ $slot['slot'] }}" class="flex items-center gap-2 sm:gap-3">
+                                                <span class="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-[10px] sm:text-xs font-semibold">
                                                     {{ $slot['slot'] }}
                                                 </span>
-                                                <div class="flex-1">
+                                                <div class="flex-1 min-w-0">
                                                     <x-searchable-select
                                                         wire:model.live="personelAssignments.{{ $globalIndex }}.personel_id"
                                                         :options="$personelOptions"

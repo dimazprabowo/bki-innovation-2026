@@ -1,6 +1,6 @@
 {{-- Step 2: Modules --}}
 <div class="space-y-5">
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-3">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Pilih Modul</h3>
         <button
             type="button"
@@ -43,7 +43,7 @@
              class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
             {{-- Header --}}
             <button type="button" @click="expanded = !expanded"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900/50 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center justify-between gap-3">
+                class="w-full px-3 sm:px-4 py-3 bg-gray-50 dark:bg-gray-900/50 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                     <svg x-show="expanded" class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -60,8 +60,8 @@
                         </span>
                     @endif
                 </div>
-                <div class="flex items-center gap-3 flex-shrink-0">
-                    <span class="text-xs text-gray-500 dark:text-gray-400">Subtotal: Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">Subtotal: Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     <span wire:click.stop="removeModule({{ $index }})" wire:target="removeModule({{ $index }})"
                         class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 cursor-pointer">
                         <svg wire:loading.class="hidden" wire:target="removeModule({{ $index }})" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@
             </button>
 
             {{-- Content --}}
-            <div x-show="expanded" x-collapse class="p-4 bg-gray-50 dark:bg-gray-900/50 overflow-visible">
+            <div x-show="expanded" x-collapse class="p-3 sm:p-4 bg-gray-50 dark:bg-gray-900/50 overflow-visible">
                 <div class="space-y-3">
                     <div x-data="{ moduleId: $wire.selectedModules[{{ $index }}].module_id }"
                          x-effect="if (moduleId !== $wire.selectedModules[{{ $index }}].module_id) { moduleId = $wire.selectedModules[{{ $index }}].module_id; if (moduleId) $wire.onModuleSelected({{ $index }}, moduleId) }">
@@ -146,10 +146,10 @@
     @endforelse
 
     {{-- Cost Summary --}}
-    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
+    <div class="p-3 sm:p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between flex-wrap gap-2">
             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Biaya Modul</span>
-            <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Rp {{ number_format($this->base_cost, 0, ',', '.') }}</span>
+            <span class="text-base sm:text-lg font-bold text-indigo-600 dark:text-indigo-400">Rp {{ number_format($this->base_cost, 0, ',', '.') }}</span>
         </div>
     </div>
 </div>

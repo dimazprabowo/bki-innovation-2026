@@ -112,19 +112,12 @@ class ProjectWizard extends Component
         }
 
         foreach ($project->projectPeralatans as $pp) {
-            $existing = collect($this->peralatanAssignments)
-                ->firstWhere('module_tool_id', $pp->module_tool_id);
-            if ($existing) {
-                $existing['peralatan_id'] = $pp->peralatan_id;
-                $idx = array_search($existing, $this->peralatanAssignments);
-                $this->peralatanAssignments[$idx] = $existing;
-            } else {
-                $this->peralatanAssignments[] = [
-                    'module_id' => $pp->module_id,
-                    'module_tool_id' => $pp->module_tool_id,
-                    'peralatan_id' => $pp->peralatan_id,
-                ];
-            }
+            $this->peralatanAssignments[] = [
+                'module_id' => $pp->module_id,
+                'module_tool_id' => $pp->module_tool_id,
+                'peralatan_id' => $pp->peralatan_id,
+                'slot' => $pp->slot ?? 1,
+            ];
         }
 
         $costs = $project->additionalCosts->toArray();
@@ -347,11 +340,20 @@ class ProjectWizard extends Component
     {
         $tool = $this->moduleTools->firstWhere('id', $moduleToolId);
         if (!$tool || !$tool->peralatan_id) {
-            return $this->availablePeralatans->map(fn ($p) => [
-                'id' => $p->id,
-                'label' => $p->name . ' (' . $p->code . ')',
-                'sublabel' => $p->location ?? '',
-            ])->toArray();
+            return $this->availablePeralatans->map(function ($p) {
+                $parts = [];
+                if ($p->location) $parts[] = $p->location;
+                $calLabel = $p->calibration_status?->label() ?? '';
+                if ($calLabel) $parts[] = $calLabel;
+                if ($p->calibration_expired_date) {
+                    $parts[] = $p->calibration_expired_date->format('d/m/Y');
+                }
+                return [
+                    'id' => $p->id,
+                    'label' => $p->name . ' (' . $p->code . ')',
+                    'sublabel' => implode(' · ', $parts),
+                ];
+            })->toArray();
         }
 
         $requiredPeralatanId = $tool->peralatan_id;
@@ -369,19 +371,19 @@ class ProjectWizard extends Component
 
                 return true;
             })
-            ->map(function ($p) use ($tool) {
-                $sublabel = $p->location ?? '';
-                if ($tool->requires_calibration) {
-                    $calLabel = $p->calibration_status?->label() ?? '';
-                    $expLabel = $p->calibration_expired_date
-                        ? ' (exp: ' . $p->calibration_expired_date->format('d/m/Y') . ')'
-                        : '';
-                    $sublabel = $calLabel . $expLabel . ($sublabel ? ' - ' . $sublabel : '');
+            ->map(function ($p) {
+                $parts = [];
+                if ($p->location) $parts[] = $p->location;
+                $calLabel = $p->calibration_status?->label() ?? '';
+                if ($calLabel) $parts[] = $calLabel;
+                if ($p->calibration_expired_date) {
+                    $expStatus = $p->calibration_status_expired ? ' (Expired)' : '';
+                    $parts[] = $p->calibration_expired_date->format('d/m/Y') . $expStatus;
                 }
                 return [
                     'id' => $p->id,
                     'label' => $p->name . ' (' . $p->code . ')',
-                    'sublabel' => $sublabel,
+                    'sublabel' => implode(' · ', $parts),
                 ];
             })
             ->values()
@@ -390,16 +392,20 @@ class ProjectWizard extends Component
 
     public function generatePeralatanAssignments(): void
     {
-        $existing = collect($this->peralatanAssignments)->keyBy('module_tool_id');
+        $existing = collect($this->peralatanAssignments)->keyBy(fn ($a) => $a['module_tool_id'] . '-' . $a['slot']);
         $newAssignments = [];
 
         foreach ($this->moduleTools as $tool) {
-            $existingItem = $existing->get($tool->id);
-            $newAssignments[] = [
-                'module_id' => $tool->module_id,
-                'module_tool_id' => $tool->id,
-                'peralatan_id' => $existingItem['peralatan_id'] ?? '',
-            ];
+            for ($slot = 1; $slot <= $tool->quantity; $slot++) {
+                $key = $tool->id . '-' . $slot;
+                $existingItem = $existing->get($key);
+                $newAssignments[] = [
+                    'module_id' => $tool->module_id,
+                    'module_tool_id' => $tool->id,
+                    'peralatan_id' => $existingItem['peralatan_id'] ?? '',
+                    'slot' => $slot,
+                ];
+            }
         }
 
         $this->peralatanAssignments = $newAssignments;
@@ -412,7 +418,7 @@ class ProjectWizard extends Component
             ->groupBy('module_tool_id')
             ->map(fn ($items, $toolId) => [
                 'tool' => $this->moduleTools->firstWhere('id', $toolId),
-                'assignment' => $items->first(),
+                'slots' => $items->values()->toArray(),
             ])
             ->filter(fn ($group) => $group['tool'] !== null)
             ->toArray();
@@ -446,7 +452,7 @@ class ProjectWizard extends Component
 
                         return [
                             'tool' => $tool,
-                            'assignment' => $items->first(),
+                            'slots' => $items->values()->toArray(),
                         ];
                     })
                     ->filter()
@@ -645,7 +651,6 @@ class ProjectWizard extends Component
 
         $peralatans = collect($this->peralatanAssignments)
             ->filter(fn ($a) => !empty($a['peralatan_id']))
-            ->unique('module_tool_id')
             ->values()
             ->toArray();
 

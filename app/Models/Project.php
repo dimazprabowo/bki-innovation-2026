@@ -91,7 +91,7 @@ class Project extends Model
     public function peralatans()
     {
         return $this->belongsToMany(Peralatan::class, 'project_peralatans')
-            ->withPivot(['module_id', 'module_tool_id'])
+            ->withPivot(['module_id', 'module_tool_id', 'slot'])
             ->withTimestamps();
     }
 

@@ -14,8 +14,8 @@
     </div>
 
     {{-- Step Indicator --}}
-    <div class="mb-8">
-        <div class="flex items-center justify-between">
+    <div class="mb-8 overflow-x-auto">
+        <div class="flex items-center justify-between min-w-[280px] sm:min-w-0">
             @foreach(range(1, $totalSteps) as $step)
                 @php($canAccess = $this->canGoToStep($step))
                 <div class="flex items-center {{ $step < $totalSteps ? 'flex-1' : '' }}">
@@ -24,7 +24,7 @@
                             type="button"
                             wire:click="goToStep({{ $step }})"
                             @if(!$canAccess) disabled @endif
-                            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors
+                            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-colors flex-shrink-0
                                 {{ $currentStep >= $step
                                     ? 'bg-indigo-600 text-white'
                                     : ($canAccess
@@ -32,12 +32,12 @@
                                         : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500') }}
                                 {{ $canAccess ? 'cursor-pointer' : 'cursor-not-allowed' }}">
                             <span wire:loading.class.remove="inline" wire:loading.class.add="hidden" wire:target="goToStep({{ $step }})">{{ $step }}</span>
-                            <svg wire:loading wire:target="goToStep({{ $step }})" class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg wire:loading wire:target="goToStep({{ $step }})" class="animate-spin h-4 w-4 sm:h-5 sm:w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </button>
-                        <span class="mt-2 text-xs text-center hidden sm:block
+                        <span class="mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-center hidden sm:block
                             {{ $currentStep >= $step ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-500' }}">
                             @switch($step)
                                 @case(1) Info Project @break
@@ -49,7 +49,7 @@
                         </span>
                     </div>
                     @if($step < $totalSteps)
-                        <div class="h-0.5 flex-1 mx-2 mt-[-20px] transition-colors
+                        <div class="h-0.5 flex-1 mx-1.5 sm:mx-2 transition-colors
                             {{ $currentStep > $step ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700' }}"></div>
                     @endif
                 </div>
@@ -58,7 +58,7 @@
     </div>
 
     {{-- Step Content --}}
-    <div wire:key="step-{{ $currentStep }}" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div wire:key="step-{{ $currentStep }}" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         @if($currentStep === 1)
             @include('livewire.pages.project-wizard.step1')
         @elseif($currentStep === 2)
@@ -73,7 +73,7 @@
     </div>
 
     {{-- Navigation --}}
-    <div class="mt-6 flex items-center justify-between">
+    <div class="mt-6 flex flex-col-reverse sm:flex-row items-center sm:justify-between gap-3">
         <x-loading-button
             type="button"
             wire:click="previousStep"
@@ -81,18 +81,19 @@
             variant="secondary"
             size="md"
             loadingText="Memuat..."
-            class="{{ $currentStep === 1 ? 'opacity-50 pointer-events-none' : '' }}">
+            class="w-full sm:w-auto {{ $currentStep === 1 ? 'opacity-50 pointer-events-none' : '' }}">
             Sebelumnya
         </x-loading-button>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
             <x-loading-button
                 type="button"
                 wire:click="saveDraft"
                 target="saveDraft"
                 variant="secondary"
                 size="md"
-                loadingText="Menyimpan...">
+                loadingText="Menyimpan..."
+                class="flex-1 sm:flex-none">
                 Simpan Draft
             </x-loading-button>
 
@@ -103,7 +104,8 @@
                     target="nextStep"
                     variant="primary"
                     size="md"
-                    loadingText="Memuat...">
+                    loadingText="Memuat..."
+                    class="flex-1 sm:flex-none">
                     Selanjutnya
                 </x-loading-button>
             @else
@@ -113,7 +115,8 @@
                     target="submitProject"
                     variant="success"
                     size="md"
-                    loadingText="Mengajukan...">
+                    loadingText="Mengajukan..."
+                    class="flex-1 sm:flex-none">
                     <x-slot:icon>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </x-slot:icon>

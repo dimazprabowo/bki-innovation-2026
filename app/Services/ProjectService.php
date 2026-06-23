@@ -135,13 +135,24 @@ class ProjectService
         return DB::transaction(function () use ($project, $peralatans) {
             $project->projectPeralatans()->delete();
 
+            $seen = [];
             foreach ($peralatans as $data) {
                 if (!empty($data['peralatan_id'])) {
+                    $toolId = $data['module_tool_id'] ?? null;
+                    $slot = $data['slot'] ?? 1;
+                    $key = $toolId . '-' . $slot;
+
+                    if (isset($seen[$key])) {
+                        continue;
+                    }
+                    $seen[$key] = true;
+
                     ProjectPeralatan::create([
                         'project_id' => $project->id,
                         'module_id' => $data['module_id'] ?? null,
-                        'module_tool_id' => $data['module_tool_id'] ?? null,
+                        'module_tool_id' => $toolId,
                         'peralatan_id' => $data['peralatan_id'],
+                        'slot' => $slot,
                     ]);
                 }
             }

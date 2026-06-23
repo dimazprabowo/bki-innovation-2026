@@ -253,12 +253,15 @@ class ProjectSeeder extends Seeder
                 continue;
             }
 
-            ProjectPeralatan::create([
-                'project_id' => $project->id,
-                'module_id' => $module->id,
-                'module_tool_id' => $tool->id,
-                'peralatan_id' => $peralatan->id,
-            ]);
+            for ($slot = 1; $slot <= $tool->quantity; $slot++) {
+                ProjectPeralatan::create([
+                    'project_id' => $project->id,
+                    'module_id' => $module->id,
+                    'module_tool_id' => $tool->id,
+                    'peralatan_id' => $peralatan->id,
+                    'slot' => $slot,
+                ]);
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ class ProjectPeralatan extends Model
         'module_id',
         'module_tool_id',
         'peralatan_id',
+        'slot',
     ];
 
     public function project(): BelongsTo
