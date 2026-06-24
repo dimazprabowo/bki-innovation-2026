@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Profile;
 
+use App\Livewire\Traits\HasNotification;
 use App\Models\Company;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
 class ManageCompany extends Component
 {
+    use HasNotification;
     public $showModal = false;
     public $isEditMode = false;
 
@@ -66,7 +68,7 @@ class ManageCompany extends Component
         $user = Auth::user();
 
         if (!$user->can('manage_own_company')) {
-            $this->dispatch('notify', type: 'error', message: 'Anda tidak memiliki izin untuk mengelola perusahaan');
+            $this->notifyError('Anda tidak memiliki izin untuk mengelola perusahaan');
             return;
         }
         
@@ -103,11 +105,16 @@ class ManageCompany extends Component
     public function save()
     {
         if (!Auth::user()->can('manage_own_company')) {
-            $this->dispatch('notify', type: 'error', message: 'Anda tidak memiliki izin untuk mengelola perusahaan');
+            $this->notifyError('Anda tidak memiliki izin untuk mengelola perusahaan');
             return;
         }
 
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->notifyValidationError($e);
+            throw $e;
+        }
 
         try {
             $user = Auth::user();
@@ -150,10 +157,7 @@ class ManageCompany extends Component
                 $message = 'Perusahaan berhasil dibuat dan dihubungkan ke akun Anda!';
             }
 
-            $this->dispatch('notify', 
-                type: 'success',
-                message: $message
-            );
+            $this->notifySuccess($message);
 
             $this->closeModal();
             
@@ -161,10 +165,7 @@ class ManageCompany extends Component
             return $this->redirect(route('profile'), navigate: true);
 
         } catch (\Exception $e) {
-            $this->dispatch('notify', 
-                type: 'error',
-                message: 'Terjadi kesalahan: ' . $e->getMessage()
-            );
+            $this->notifyError('Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

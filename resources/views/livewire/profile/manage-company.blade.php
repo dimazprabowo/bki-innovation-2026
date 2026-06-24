@@ -4,7 +4,7 @@
         <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
             <div class="max-w-xl">
                 <section>
-                    <header class="flex items-center justify-between">
+                    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                                 Informasi Perusahaan
@@ -20,7 +20,7 @@
                         <button wire:click="openModal" 
                             wire:loading.attr="disabled"
                             wire:target="openModal"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors gap-2">
+                            class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors gap-2 w-full sm:w-auto whitespace-nowrap">
                             
                             {{-- Loading Icon --}}
                             <svg wire:loading wire:target="openModal" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
