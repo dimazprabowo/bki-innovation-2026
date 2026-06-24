@@ -258,7 +258,7 @@ class ProjectWorkOrder extends Component
 
                         $structuredSubitems[] = [
                             'subitem' => $subitem,
-                            'number' => "{$moduleIndex}.{$itemNumber}." . $subNumber,
+                            'number' => "{$moduleIndex}.{$itemNumber}." . chr(96 + $subNumber),
                             'key' => $key,
                             'locked' => $subLocked,
                         ];
