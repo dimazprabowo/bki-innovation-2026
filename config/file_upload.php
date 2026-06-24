@@ -52,5 +52,10 @@ return [
             'max_size' => 10240, // 10 MB
             'mimes' => ['pdf', 'doc', 'docx', 'xls', 'xlsx'],
         ],
+
+        'project_deliverable' => [
+            'max_size' => 20480, // 20 MB
+            'mimes' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'zip', 'rar'],
+        ],
     ],
 ];

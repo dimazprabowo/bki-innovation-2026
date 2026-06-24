@@ -78,4 +78,16 @@ class ProjectPolicy
     {
         return $user->can('projects_export_pdf');
     }
+
+    public function manageWorkOrder(User $user, Project $project): bool
+    {
+        return $user->can('projects_work_order')
+            && in_array($project->status, [ProjectStatus::Active]);
+    }
+
+    public function manageDeliverables(User $user, Project $project): bool
+    {
+        return $user->can('projects_deliverables')
+            && in_array($project->status, [ProjectStatus::Active]);
+    }
 }

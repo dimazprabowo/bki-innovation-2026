@@ -95,6 +95,16 @@ class Project extends Model
             ->withTimestamps();
     }
 
+    public function workOrderChecklists()
+    {
+        return $this->hasMany(ProjectWorkOrderChecklist::class);
+    }
+
+    public function projectDeliverables()
+    {
+        return $this->hasMany(ProjectDeliverable::class);
+    }
+
     public function getBaseCostAttribute(): float
     {
         return (float) ($this->modules->sum('pivot.subtotal') ?? 0);

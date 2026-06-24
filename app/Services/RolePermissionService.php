@@ -155,6 +155,8 @@ class RolePermissionService
                 ['name' => 'projects_update',       'label' => 'Edit Project'],
                 ['name' => 'projects_delete',       'label' => 'Hapus Project'],
                 ['name' => 'projects_approve',      'label' => 'Approve Project'],
+                ['name' => 'projects_work_order',   'label' => 'Manage Work Order Checklist'],
+                ['name' => 'projects_deliverables', 'label' => 'Manage Deliverables'],
                 ['name' => 'projects_export_excel', 'label' => 'Export Excel Project'],
                 ['name' => 'projects_export_pdf',   'label' => 'Export PDF Project'],
             ],

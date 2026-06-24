@@ -106,6 +106,8 @@ class PermissionSeeder extends Seeder
             'projects_update',
             'projects_delete',
             'projects_approve',
+            'projects_work_order',
+            'projects_deliverables',
             'projects_export_excel',
             'projects_export_pdf',
 

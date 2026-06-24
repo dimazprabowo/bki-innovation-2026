@@ -97,6 +97,14 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/{project}/edit', function (\App\Models\Project $project) {
             return view('projects.edit', ['project' => $project]);
         })->middleware('can:projects_update')->name('edit');
+
+        Route::get('/{project}/work-order', function (\App\Models\Project $project) {
+            return view('projects.work-order', ['project' => $project]);
+        })->middleware('can:projects_view')->name('work-order');
+
+        Route::get('/{project}/deliverables', function (\App\Models\Project $project) {
+            return view('projects.deliverables', ['project' => $project]);
+        })->middleware('can:projects_view')->name('deliverables');
     });
 
     // Notifications
