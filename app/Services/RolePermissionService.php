@@ -155,6 +155,7 @@ class RolePermissionService
             ],
             'Project' => [
                 ['name' => 'projects_view',         'label' => 'Lihat Project'],
+                ['name' => 'projects_show',         'label' => 'Detail Project'],
                 ['name' => 'projects_create',       'label' => 'Buat Project'],
                 ['name' => 'projects_update',       'label' => 'Edit Project'],
                 ['name' => 'projects_delete',       'label' => 'Hapus Project'],

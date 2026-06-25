@@ -100,7 +100,7 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/{project}', function (\App\Models\Project $project) {
             return view('projects.show', ['project' => $project]);
-        })->middleware('can:projects_view')->name('show');
+        })->middleware('can:projects_show')->name('show');
 
         Route::get('/{project}/edit', function (\App\Models\Project $project) {
             return view('projects.edit', ['project' => $project]);
@@ -108,11 +108,11 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/{project}/work-order', function (\App\Models\Project $project) {
             return view('projects.work-order', ['project' => $project]);
-        })->middleware('can:projects_view')->name('work-order');
+        })->middleware('can:projects_show')->name('work-order');
 
         Route::get('/{project}/deliverables', function (\App\Models\Project $project) {
             return view('projects.deliverables', ['project' => $project]);
-        })->middleware('can:projects_view')->name('deliverables');
+        })->middleware('can:projects_show')->name('deliverables');
     });
 
     // Notifications

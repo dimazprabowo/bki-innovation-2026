@@ -16,7 +16,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        return $user->can('projects_view');
+        return $user->can('projects_show');
     }
 
     public function create(User $user): bool

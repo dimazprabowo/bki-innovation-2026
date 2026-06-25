@@ -57,5 +57,53 @@ class UserSeeder extends Seeder
         if (!$user->hasRole('user')) {
             $user->assignRole('user');
         }
+
+        // Admin Data
+        $adminData = User::firstOrCreate(
+            ['email' => 'admindata@app.com'],
+            [
+                'name' => 'Admin Data',
+                'password' => Hash::make('password'),
+                'phone' => '021-1234569',
+                'position' => 'Data Entry Master Data',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$adminData->hasRole('admin data')) {
+            $adminData->assignRole('admin data');
+        }
+
+        // Approver
+        $approver = User::firstOrCreate(
+            ['email' => 'approver@app.com'],
+            [
+                'name' => 'Approver',
+                'password' => Hash::make('password'),
+                'phone' => '021-1234570',
+                'position' => 'Approval Officer',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$approver->hasRole('approver')) {
+            $approver->assignRole('approver');
+        }
+
+        // Admin Project
+        $adminProject = User::firstOrCreate(
+            ['email' => 'adminproject@app.com'],
+            [
+                'name' => 'Admin Project',
+                'password' => Hash::make('password'),
+                'phone' => '021-1234571',
+                'position' => 'Project Manager',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$adminProject->hasRole('admin project')) {
+            $adminProject->assignRole('admin project');
+        }
     }
 }

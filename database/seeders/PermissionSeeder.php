@@ -106,6 +106,7 @@ class PermissionSeeder extends Seeder
 
             // Projects
             'projects_view',
+            'projects_show',
             'projects_create',
             'projects_update',
             'projects_delete',
