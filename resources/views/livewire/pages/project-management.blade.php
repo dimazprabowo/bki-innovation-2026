@@ -37,7 +37,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center gap-2 w-full lg:w-auto">
+        <div class="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start">
             @can('projects_export_excel')
                 <x-loading-button wire:click="exportExcel" target="exportExcel" variant="success" size="md" loadingText="Exporting..." title="Export Excel">
                     <x-slot:icon>
@@ -56,7 +56,7 @@
             @endcan
             @can('projects_create')
                 <a href="{{ route('projects.create') }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex-1 lg:flex-none">
                     <svg x-show="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <svg x-show="loading" x-cloak class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

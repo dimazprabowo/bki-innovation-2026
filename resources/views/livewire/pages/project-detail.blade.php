@@ -514,10 +514,7 @@
                         @enderror
                     </div>
                     <div class="flex items-center justify-center gap-3">
-                        <button @click="$wire.set('showRejectModal', false)"
-                            class="px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition">
-                            Batal
-                        </button>
+                        <x-cancel-button wire:click="closeRejectModal" target="closeRejectModal" />
                         <button wire:click="reject"
                             class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
@@ -562,10 +559,7 @@
                         @enderror
                     </div>
                     <div class="flex items-center justify-center gap-3">
-                        <button @click="$wire.set('showCloseModal', false)"
-                            class="px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition">
-                            Batal
-                        </button>
+                        <x-cancel-button wire:click="closeCloseModal" target="closeCloseModal" />
                         <button wire:click="closeProject"
                             class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"

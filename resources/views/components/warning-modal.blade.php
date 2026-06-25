@@ -22,10 +22,7 @@
                     {{ $message }}
                 </p>
                 <div class="flex items-center justify-center gap-3">
-                    <button wire:click="$set('{{ $attributes->wire('model')->value() }}', false)"
-                        class="px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition">
-                        {{ $cancelText }}
-                    </button>
+                    <x-cancel-button wire:click="$set('{{ $attributes->wire('model')->value() }}', false)" target="$set('{{ $attributes->wire('model')->value() }}', false)" label="{{ $cancelText }}" />
                     <button wire:click="{{ $confirmMethod }}"
                         class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                         wire:loading.attr="disabled"

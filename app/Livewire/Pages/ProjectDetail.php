@@ -110,6 +110,18 @@ class ProjectDetail extends Component
         }
     }
 
+    public function closeRejectModal()
+    {
+        $this->showRejectModal = false;
+        $this->rejectionReason = '';
+    }
+
+    public function closeCloseModal()
+    {
+        $this->showCloseModal = false;
+        $this->closeReason = '';
+    }
+
     public function confirmReject()
     {
         $this->rejectionReason = '';

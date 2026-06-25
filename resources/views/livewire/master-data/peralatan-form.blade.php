@@ -115,10 +115,7 @@
             </div>
 
             <div class="mt-6 flex flex-col sm:flex-row items-center justify-end gap-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-5 py-4">
-                <x-loading-button type="button" wire:click="cancel" target="cancel" variant="secondary" size="lg"
-                    loadingText="Memuat..." class="w-full sm:w-auto">
-                    Batal
-                </x-loading-button>
+                <x-cancel-button wire:click="cancel" target="cancel" variant="secondary" size="lg" class="w-full sm:w-auto" />
                 <x-loading-button type="submit" target="save" variant="primary" size="lg"
                     loadingText="Menyimpan..." class="w-full sm:w-auto">
                     {{ $editMode ? 'Update' : 'Simpan' }}

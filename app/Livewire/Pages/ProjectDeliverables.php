@@ -142,6 +142,12 @@ class ProjectDeliverables extends Component
         $this->showDeleteModal = true;
     }
 
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingDeliverableId = null;
+    }
+
     public function deleteDeliverable(): void
     {
         $deliverable = ProjectDeliverable::findOrFail($this->deletingDeliverableId);

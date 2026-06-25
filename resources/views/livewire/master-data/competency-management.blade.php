@@ -169,10 +169,7 @@
                                 loadingText="Menyimpan..." class="w-full sm:w-auto">
                                 {{ $editMode ? 'Update' : 'Simpan' }}
                             </x-loading-button>
-                            <x-loading-button type="button" wire:click="closeModal" target="closeModal" variant="secondary" size="lg"
-                                loadingText="Memuat..." class="mt-3 sm:mt-0 w-full sm:w-auto">
-                                Batal
-                            </x-loading-button>
+                            <x-cancel-button wire:click="closeModal" target="closeModal" variant="secondary" size="lg" class="mt-3 sm:mt-0 w-full sm:w-auto" />
                         </div>
                     </form>
                 </div>

@@ -390,10 +390,7 @@
 
                             {{-- Buttons --}}
                             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <x-loading-button type="button" wire:click="closeModal" target="closeModal" variant="secondary" size="lg"
-                                    loadingText="Memuat...">
-                                    Batal
-                                </x-loading-button>
+                                <x-cancel-button wire:click="closeModal" target="closeModal" variant="secondary" size="lg" />
                                 <x-loading-button type="submit" target="save" variant="primary" size="lg"
                                     loadingText="Menyimpan...">
                                     {{ $isEditMode ? 'Update' : 'Simpan' }}
