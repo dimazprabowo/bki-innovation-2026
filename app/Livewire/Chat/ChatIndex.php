@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Carbon\Carbon;
 use Throwable;
 
 class ChatIndex extends Component
@@ -46,6 +47,11 @@ class ChatIndex extends Component
     {
         if (!$this->isUserChat($chatId)) {
             return;
+        }
+
+        // Stop typing indicator on previous chat
+        if ($this->activeChatId && $this->activeChatId !== $chatId) {
+            $this->sendTyping(false);
         }
 
         $this->activeChatId = $chatId;
@@ -162,6 +168,15 @@ class ChatIndex extends Component
             ]);
             $chat->participants()->attach([$me, $userId]);
             $this->userChatIds = null; // bust cache
+        } else {
+            // Re-opening a previously deleted chat: set deleted_at to now() for a fresh start
+            // Only new messages (after this point) will be visible to the user who deleted
+            DB::table('chat_participants')
+                ->where('chat_id', $chat->id)
+                ->where('user_id', $me)
+                ->whereNotNull('deleted_at')
+                ->update(['deleted_at' => now()]);
+            $this->userChatIds = null; // bust cache
         }
 
         $this->activeChatId = $chat->id;
@@ -201,11 +216,14 @@ class ChatIndex extends Component
             // Broadcast failed — message is still saved in DB
         }
 
+        // Stop typing indicator after sending message
+        $this->sendTyping(false);
+
         $this->messageBody = '';
         $this->replyToId = null;
     }
 
-    public function sendTyping(): void
+    public function sendTyping(bool $isTyping = true): void
     {
         if (!$this->activeChatId) {
             return;
@@ -216,6 +234,7 @@ class ChatIndex extends Component
                 chatId: $this->activeChatId,
                 userId: Auth::id(),
                 userName: Auth::user()->name,
+                isTyping: $isTyping,
             ))->toOthers();
         } catch (Throwable) {
             // Silently ignore — typing indicator is non-critical
@@ -256,7 +275,12 @@ class ChatIndex extends Component
         $chat = Chat::findOrFail($this->deleteChatId);
         $this->authorize('delete', $chat);
 
-        $chat->delete();
+        // Per-user soft delete: mark deleted_at on current user's pivot only
+        // Messages before this timestamp will be hidden from this user
+        DB::table('chat_participants')
+            ->where('chat_id', $this->deleteChatId)
+            ->where('user_id', Auth::id())
+            ->update(['deleted_at' => now()]);
 
         if ($this->activeChatId === $this->deleteChatId) {
             $this->activeChatId = null;
@@ -289,7 +313,7 @@ class ChatIndex extends Component
 
     public function handleTyping($event): void
     {
-        $this->dispatch('user-typing', userId: $event['user_id'], userName: $event['user_name']);
+        $this->dispatch('user-typing', userId: $event['user_id'], userName: $event['user_name'], is_typing: $event['is_typing'] ?? true);
     }
 
     /**
@@ -311,15 +335,30 @@ class ChatIndex extends Component
     {
         $userId = Auth::id();
 
-        // Single query: get user's chat IDs + last_read_at from pivot table
+        // Get all chat participant data for current user (including soft-deleted)
         $participantData = DB::table('chat_participants')
             ->where('user_id', $userId)
-            ->get(['chat_id', 'last_read_at']);
+            ->get(['chat_id', 'last_read_at', 'deleted_at']);
 
-        $chatIds = $participantData->pluck('chat_id');
         $lastReadMap = $participantData->pluck('last_read_at', 'chat_id');
+        $deletedAtMap = $participantData->pluck('deleted_at', 'chat_id');
 
-        // Single query: unread counts for all chats at once
+        // Load chats with relationships
+        $chats = Chat::whereIn('id', $participantData->pluck('chat_id'))
+            ->with(['participants', 'latestMessage.user'])
+            ->get()
+            ->filter(function ($chat) use ($deletedAtMap) {
+                $deletedAt = $deletedAtMap[$chat->id] ?? null;
+                if (!$deletedAt) {
+                    return true;
+                }
+                // Show chat only if there are messages after deletion
+                return $chat->latestMessage && $chat->latestMessage->created_at > Carbon::parse($deletedAt);
+            })
+            ->sortByDesc(fn ($chat) => $chat->latestMessage?->created_at ?? $chat->created_at);
+
+        // Unread counts: messages after last_read_at AND after deleted_at (if set)
+        $chatIds = $chats->pluck('id');
         $unreadCounts = [];
         if ($chatIds->isNotEmpty()) {
             $unreadQuery = DB::table('chat_messages')
@@ -327,32 +366,27 @@ class ChatIndex extends Component
                 ->whereIn('chat_id', $chatIds)
                 ->where('user_id', '!=', $userId);
 
-            // Build per-chat last_read_at conditions
-            $hasReadChats = $lastReadMap->filter();
-            if ($hasReadChats->isNotEmpty()) {
-                $unreadQuery->where(function ($q) use ($lastReadMap, $userId) {
-                    foreach ($lastReadMap as $chatId => $lastRead) {
+            $unreadQuery->where(function ($q) use ($chatIds, $lastReadMap, $deletedAtMap) {
+                foreach ($chatIds as $chatId) {
+                    $lastRead = $lastReadMap[$chatId] ?? null;
+                    $deletedAt = $deletedAtMap[$chatId] ?? null;
+
+                    $q->orWhere(function ($sub) use ($chatId, $lastRead, $deletedAt) {
+                        $sub->where('chat_id', $chatId);
                         if ($lastRead) {
-                            $q->orWhere(function ($sub) use ($chatId, $lastRead) {
-                                $sub->where('chat_id', $chatId)
-                                    ->where('created_at', '>', $lastRead);
-                            });
-                        } else {
-                            $q->orWhere('chat_id', $chatId);
+                            $sub->where('created_at', '>', $lastRead);
                         }
-                    }
-                });
-            }
+                        if ($deletedAt) {
+                            $sub->where('created_at', '>', $deletedAt);
+                        }
+                    });
+                }
+            });
 
             $unreadCounts = $unreadQuery->groupBy('chat_id')
                 ->pluck('unread', 'chat_id')
                 ->all();
         }
-
-        $chats = Chat::whereIn('id', $chatIds)
-            ->with(['participants', 'latestMessage.user'])
-            ->get()
-            ->sortByDesc(fn ($chat) => $chat->latestMessage?->created_at ?? $chat->created_at);
 
         if ($this->searchChat) {
             $chats = $chats->filter(function ($chat) {
@@ -367,15 +401,25 @@ class ChatIndex extends Component
         $messages = collect();
 
         if ($this->activeChatId) {
-            // Reuse already-loaded chats instead of a second query
-            $activeChat = $chats->firstWhere('id', $this->activeChatId);
+            $participant = $participantData->firstWhere('chat_id', $this->activeChatId);
 
-            if ($activeChat) {
-                $messages = ChatMessage::where('chat_id', $this->activeChatId)
-                    ->with(['user', 'replyTo.user'])
-                    ->orderBy('created_at', 'asc')
-                    ->limit(100)
-                    ->get();
+            if ($participant) {
+                $activeChat = $chats->firstWhere('id', $this->activeChatId);
+
+                // If not in filtered list (e.g., just re-opened a deleted chat), load directly
+                if (!$activeChat) {
+                    $activeChat = Chat::with(['participants', 'latestMessage.user'])
+                        ->find($this->activeChatId);
+                }
+
+                if ($activeChat) {
+                    $messages = ChatMessage::where('chat_id', $this->activeChatId)
+                        ->with(['user', 'replyTo.user'])
+                        ->when($participant->deleted_at, fn ($q) => $q->where('created_at', '>', $participant->deleted_at))
+                        ->orderBy('created_at', 'asc')
+                        ->limit(100)
+                        ->get();
+                }
             }
         }
 

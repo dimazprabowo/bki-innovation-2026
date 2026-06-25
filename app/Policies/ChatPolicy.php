@@ -25,12 +25,13 @@ class ChatPolicy
     }
 
     /**
-     * Determine whether the user can delete a chat.
+     * Determine whether the user can delete a chat (per-user soft delete).
      * Only participants with chat_delete permission can delete.
      */
     public function delete(User $user, Chat $chat): bool
     {
-        return $user->can('chat_delete');
+        return $user->can('chat_delete')
+            && $chat->participants()->where('users.id', $user->id)->exists();
     }
 
     /**

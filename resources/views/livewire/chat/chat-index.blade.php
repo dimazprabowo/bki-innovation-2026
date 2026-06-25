@@ -1,19 +1,24 @@
 <div class="flex h-[calc(100vh-10rem)] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
-     wire:poll.visible.10s
      x-data="{
          typingUser: null,
          typingTimeout: null,
          showMobileList: true,
      }"
+     x-init="$watch('$wire.activeChatId', (val) => { if (!val) showMobileList = true })"
      @user-typing.window="
-         typingUser = $event.detail.userName;
          clearTimeout(typingTimeout);
-         typingTimeout = setTimeout(() => typingUser = null, 3000);
+         if ($event.detail.is_typing) {
+             typingUser = $event.detail.userName;
+             typingTimeout = setTimeout(() => typingUser = null, 5000);
+         } else {
+             typingUser = null;
+         }
      ">
 
     {{-- Left Panel: Chat List --}}
     <div class="w-full md:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col flex-shrink-0"
-         :class="{ 'hidden md:flex': !showMobileList && {{ $activeChatId ? 'true' : 'false' }} }">
+         :class="{ 'hidden md:flex': !showMobileList }"
+         wire:poll.visible.10s>
 
         {{-- Search Header --}}
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 space-y-3">
@@ -173,10 +178,7 @@
                     </div>
                     <div class="min-w-0">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $activeChat->display_name }}</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400" x-show="typingUser" x-cloak>
-                            <span class="text-blue-500 dark:text-blue-400" x-text="typingUser + ' sedang mengetik...'"></span>
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400" x-show="!typingUser">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
                             {{ $activeChat->is_group ? $activeChat->participants->count() . ' peserta' : '' }}
                         </p>
                     </div>
@@ -212,7 +214,7 @@
 
                     {{-- Date Separator --}}
                     @if($lastDate !== $messageDate)
-                        <div class="flex items-center justify-center my-4">
+                        <div wire:key="date-{{ $messageDate }}" class="flex items-center justify-center my-4">
                             <span class="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
                                 @if($message->created_at->isToday())
                                     Hari Ini
@@ -314,13 +316,21 @@
                                               style="min-height: 36px; max-height: 100px;"></textarea>
                                     <div class="flex items-center justify-between mt-2">
                                         <div class="flex items-center gap-1.5">
-                                            <button wire:click="cancelEdit"
-                                                    class="px-2.5 py-1 text-[11px] font-medium text-blue-200 hover:text-white bg-blue-700/50 hover:bg-blue-700 rounded-md transition-colors">
-                                                Batal
+                                            <button wire:click="cancelEdit" x-data="{ loading: false }" @click="loading = true" :disabled="loading"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-blue-200 hover:text-white bg-blue-700/50 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50">
+                                                <span x-show="!loading">Batal</span>
+                                                <svg x-show="loading" x-cloak class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                </svg>
                                             </button>
-                                            <button wire:click="updateMessage"
-                                                    class="px-2.5 py-1 text-[11px] font-medium text-blue-600 bg-white hover:bg-blue-50 rounded-md transition-colors">
-                                                Simpan
+                                            <button wire:click="updateMessage" x-data="{ loading: false }" @click="loading = true" :disabled="loading"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-blue-600 bg-white hover:bg-blue-50 rounded-md transition-colors disabled:opacity-50">
+                                                <span x-show="!loading">Simpan</span>
+                                                <svg x-show="loading" x-cloak class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                </svg>
                                             </button>
                                         </div>
                                     </div>
@@ -439,14 +449,15 @@
                  x-init="$watch('$wire.messageBody', () => $nextTick(() => resize()))">
                 <form @submit.prevent="send()" class="flex items-end gap-2">
                     <textarea x-ref="msgInput"
-                              wire:model.live.debounce.150ms="messageBody"
+                              wire:model="messageBody"
                               @keydown.ctrl.enter.prevent="send()"
-                              @input.throttle.500ms="$wire.sendTyping()"
+                              @input.throttle.1s="$wire.sendTyping(true)"
+                              @input.debounce.1s="$wire.sendTyping(false)"
                               @input="resize()"
                               placeholder="Ketik pesan... (Ctrl+Enter untuk kirim)"
                               rows="1"
-                              class="flex-1 text-sm rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 resize-none py-2.5 px-4"
-                              style="min-height: 40px; max-height: 120px; overflow-y: auto;"></textarea>
+                              class="flex-1 text-sm rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 resize-none break-words py-2.5 px-4"
+                              style="min-height: 40px; max-height: 120px; overflow: hidden;"></textarea>
                     <button type="submit"
                             class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors disabled:opacity-50"
                             :disabled="sending || !($wire.messageBody || '').trim()">
@@ -479,20 +490,22 @@
     </div>
 
     {{-- Delete Chat Confirmation Modal --}}
-    <x-delete-confirmation-modal wire:model="showDeleteModal" confirmAction="deleteChat">
-        <x-slot name="title">Hapus Percakapan</x-slot>
-        Apakah Anda yakin ingin menghapus percakapan ini? Semua pesan akan hilang dan tidak dapat dikembalikan.
-        <x-slot name="confirmText">Ya, Hapus</x-slot>
-        <x-slot name="cancelText">Batal</x-slot>
-    </x-delete-confirmation-modal>
+    <x-delete-modal
+        :show="$showDeleteModal"
+        wire:model="showDeleteModal"
+        title="Hapus Percakapan"
+        message="Percakapan ini akan dihapus untuk Anda saja. Pesan tetap terlihat oleh peserta lain. Jika ada pesan baru, percakapan akan muncul kembali namun hanya menampilkan pesan baru saja."
+        confirmMethod="deleteChat"
+    />
 
     {{-- Delete Message Confirmation Modal --}}
-    <x-delete-confirmation-modal wire:model="showDeleteMessageModal" confirmAction="deleteMessage">
-        <x-slot name="title">Hapus Pesan</x-slot>
-        Pesan ini akan dihapus untuk semua orang. Pesan yang sudah dihapus tidak dapat dikembalikan.
-        <x-slot name="confirmText">Ya, Hapus</x-slot>
-        <x-slot name="cancelText">Batal</x-slot>
-    </x-delete-confirmation-modal>
+    <x-delete-modal
+        :show="$showDeleteMessageModal"
+        wire:model="showDeleteMessageModal"
+        title="Hapus Pesan"
+        message="Pesan ini akan dihapus untuk semua orang. Pesan yang sudah dihapus tidak dapat dikembalikan."
+        confirmMethod="deleteMessage"
+    />
 </div>
 
 @script

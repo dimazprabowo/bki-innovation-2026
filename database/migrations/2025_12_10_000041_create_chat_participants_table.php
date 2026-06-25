@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('chat_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamp('last_read_at')->nullable();
+            $table->timestamp('deleted_at')->nullable(); // per-user soft delete
             $table->timestamps();
 
             $table->unique(['chat_id', 'user_id']);
