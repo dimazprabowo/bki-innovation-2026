@@ -188,7 +188,7 @@ class SsoAuthController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
             return redirect()->route('login')->withErrors([
-                'sso' => 'Terjadi kesalahan saat autentikasi SSO: ' . $e->getMessage(),
+                'sso' => 'Terjadi kesalahan saat autentikasi SSO. Silakan coba lagi.',
             ]);
         }
     }
@@ -199,6 +199,10 @@ class SsoAuthController extends Controller
      */
     protected function findOrCreateUser(array $ssoUser): User
     {
+        if (empty($ssoUser['email']) || empty($ssoUser['name'])) {
+            abort(403, 'Data user dari SSO Server tidak valid.');
+        }
+
         $user = User::where('email', $ssoUser['email'])->first();
 
         if ($user) {

@@ -165,7 +165,7 @@ class ManageCompany extends Component
             return $this->redirect(route('profile'), navigate: true);
 
         } catch (\Exception $e) {
-            $this->notifyError('Terjadi kesalahan: ' . $e->getMessage());
+            $this->notifyError('Terjadi kesalahan sistem. Silakan coba lagi.');
         }
     }
 

@@ -85,7 +85,6 @@ class SsoSyncController extends Controller
 
             return response()->json([
                 'message' => 'Failed to sync user.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -129,7 +128,6 @@ class SsoSyncController extends Controller
 
             return response()->json([
                 'message' => 'Failed to remove user.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -242,7 +240,6 @@ class SsoSyncController extends Controller
 
             return response()->json([
                 'message' => 'Failed to sync user roles.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -289,7 +286,6 @@ class SsoSyncController extends Controller
 
             return response()->json([
                 'message' => 'Failed to sync role.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -336,7 +332,6 @@ class SsoSyncController extends Controller
 
             return response()->json([
                 'message' => 'Failed to delete role.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }

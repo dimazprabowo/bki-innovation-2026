@@ -728,7 +728,7 @@ class ModuleForm extends Component
                 'module_id' => $this->moduleId ?? null,
                 'edit_mode' => $this->editMode,
             ]);
-            $this->notifyError('Terjadi kesalahan: ' . $e->getMessage());
+            $this->notifyError('Terjadi kesalahan sistem. Silakan coba lagi.');
         }
     }
 
