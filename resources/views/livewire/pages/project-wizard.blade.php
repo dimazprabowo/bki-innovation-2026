@@ -113,11 +113,11 @@
                 <x-loading-button
                     wire:key="wizard-submit-btn"
                     type="button"
-                    wire:click="submitProject"
-                    target="submitProject"
+                    wire:click="confirmSubmit"
+                    target="confirmSubmit"
                     variant="success"
                     size="md"
-                    loadingText="Mengajukan..."
+                    loadingText="Memuat..."
                     class="flex-1 sm:flex-none">
                     <x-slot:icon>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
@@ -144,5 +144,41 @@
         message="Apakah Anda yakin ingin menghapus biaya tambahan ini?"
         confirmMethod="confirmDeleteAdditionalCost"
     />
+
+    {{-- Submit Confirmation Modal --}}
+    @if($showSubmitModal)
+        <div class="fixed inset-0 z-[60] overflow-y-auto" x-data x-transition.opacity>
+            <div class="flex items-center justify-center min-h-screen px-4 py-6">
+                <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/80" @click="$wire.set('showSubmitModal', false)"></div>
+                <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md z-10 overflow-hidden">
+                    <div class="px-6 pt-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-1">Ajukan Project?</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            Pastikan semua data project sudah benar. Setelah diajukan, project akan masuk ke proses review CoE dan tidak dapat diedit lagi hingga disetujui atau ditolak.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-center gap-3 px-6 pb-6">
+                        <x-cancel-button wire:click="$set('showSubmitModal', false)" target="$set('showSubmitModal', false)" variant="secondary" />
+                        <button type="button"
+                            wire:click="submitProject"
+                            wire:loading.attr="disabled"
+                            wire:target="submitProject"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg wire:loading.class.remove="inline-block" wire:loading.class.add="hidden" wire:target="submitProject" class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <svg wire:loading wire:target="submitProject" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span wire:loading.class.remove="inline-block" wire:loading.class.add="hidden" wire:target="submitProject" class="inline-block">Ya, Ajukan</span>
+                            <span wire:loading wire:target="submitProject">Mengajukan...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
 </div>

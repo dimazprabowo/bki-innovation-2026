@@ -96,7 +96,7 @@ class ModuleSeeder extends Seeder
                     ['document_name' => 'AWS D1.1', 'document_id' => 'AWS-D1.1'],
                 ],
                 'personels' => [
-                    ['position_name' => 'Welding Inspector', 'quantity' => 1, 'nature' => 'mandatory', 'competencies' => $competencies->take(1)->pluck('id')->toArray()],
+                    ['position_name' => 'Welding Inspector', 'quantity' => 1, 'nature' => 'mandatory', 'competencies' => $competencies->where('code', 'KOM002')->pluck('id')->toArray()],
                 ],
                 'tools' => [
                     ['peralatan_id' => $peralatans->where('name', 'Magnetic Particle Testing Kit')->first()?->id, 'requires_calibration' => true, 'quantity' => 1],

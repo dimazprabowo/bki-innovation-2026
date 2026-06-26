@@ -54,6 +54,23 @@ class PersonelSeeder extends Seeder
                     ['competency_id' => 8, 'certificate_file' => 'mechanical_cert_005.pdf', 'issuer' => 'BKI Indonesia', 'issue_date' => '2023-04-10', 'expired_date' => '2026-11-30'],
                 ],
             ],
+            [
+                'code' => 'P006',
+                'name' => 'Fajar Nugroho',
+                'is_active' => true,
+                'competencies' => [
+                    ['competency_id' => 7, 'certificate_file' => 'diving_cert_006.pdf', 'issuer' => 'ADCI', 'issue_date' => '2023-08-20', 'expired_date' => '2027-08-20'],
+                ],
+            ],
+            [
+                'code' => 'P007',
+                'name' => 'Gilang Ramadhan',
+                'is_active' => true,
+                'competencies' => [
+                    ['competency_id' => 7, 'certificate_file' => 'diving_cert_007.pdf', 'issuer' => 'ADCI', 'issue_date' => '2023-09-15', 'expired_date' => '2027-09-15'],
+                    ['competency_id' => 6, 'certificate_file' => 'structural_cert_007.pdf', 'issuer' => 'BKI Indonesia', 'issue_date' => '2023-10-01', 'expired_date' => '2027-10-01'],
+                ],
+            ],
         ];
 
         foreach ($personels as $personelData) {

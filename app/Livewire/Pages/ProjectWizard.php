@@ -52,6 +52,7 @@ class ProjectWizard extends Component
     public $deletingCostIndex = null;
     public $showDeletePeralatanModal = false;
     public $deletingPeralatanIndex = null;
+    public $showSubmitModal = false;
 
 
     public function mount(?Project $project = null): void
@@ -818,8 +819,15 @@ class ProjectWizard extends Component
         }
     }
 
+    public function confirmSubmit(): void
+    {
+        $this->showSubmitModal = true;
+    }
+
     public function submitProject(): void
     {
+        $this->showSubmitModal = false;
+
         $this->withValidator(function ($validator) {
             if ($validator->fails()) {
                 $errors = $validator->errors();

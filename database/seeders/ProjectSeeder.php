@@ -96,7 +96,10 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Assign personels to project1
-        $this->assignPersonels($project1, $mod1, $personels, [0, 1]);
+        // mod1: Surveyor Senior (KOM001+KOM002), Asisten Surveyor (KOM001)
+        // mod2: Welding Inspector (KOM002)
+        // mod5: Mechanical Inspector (KOM008)
+        $this->assignPersonels($project1, $mod1, $personels, [1, 0]);
         $this->assignPersonels($project1, $mod2, $personels, [1]);
         $this->assignPersonels($project1, $mod5, $personels, [4]);
 
@@ -153,7 +156,8 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Assign personels to project2
-        $this->assignPersonels($project2, $mod4, $personels, [3, 0]);
+        // mod4: Lead Inspector (KOM006+KOM007), Diving Inspector x2 (KOM007), Structural Engineer (KOM006)
+        $this->assignPersonels($project2, $mod4, $personels, [3, 5, 6]);
         $this->assignPersonels($project2, $mod1, $personels, [0]);
 
         // Assign peralatans to project2

@@ -319,7 +319,7 @@
     @endphp
 
     {{-- Personel & Peralatan grouped by Module --}}
-    @if($project->projectPersonels->isNotEmpty() || $project->projectPeralatans->isNotEmpty())
+    @if($project->modules->isNotEmpty())
         <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Penugasan per Modul</h3>
             @foreach($moduleGroups as $group)
@@ -328,62 +328,283 @@
                     $personels = $group['personels'];
                     $peralatans = $group['peralatans'];
                 @endphp
-                @if($personels->isNotEmpty() || $peralatans->isNotEmpty())
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                @if($personels->isNotEmpty() || $peralatans->isNotEmpty() || $module->personels->isNotEmpty() || $module->tools->isNotEmpty())
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden" x-data="{ open: true }">
                         {{-- Module Header --}}
-                        <div class="px-5 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                        <button type="button" @click="open = !open" class="w-full px-5 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900/70">
                             <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $module->name }}</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 text-left">{{ $module->name }}</span>
                             <span class="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
                                 {{ $module->risk_level->label() }}
                             </span>
-                        </div>
+                            <svg class="flex-shrink-0 w-4 h-4 text-gray-400 ml-auto transition-transform duration-200" :class="open ? '' : '-rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
 
-                        <div class="p-5 space-y-4">
-                            {{-- Personels in this module --}}
-                            @if($personels->isNotEmpty())
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-5 space-y-4">
+                            {{-- Personels: Requirement vs Actual --}}
+                            @php
+                                $modulePersonelSlots = $module->personels;
+                                $assignedBySlot = $personels->groupBy('module_personel_id');
+                            @endphp
+                            @if($modulePersonelSlots->isNotEmpty() || $personels->isNotEmpty())
                                 <div>
-                                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Personel ({{ $personels->count() }})</h4>
-                                    <div class="space-y-2">
-                                        @foreach($personels as $pp)
+                                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Personel</h4>
+                                    <div class="space-y-3">
+                                        @foreach($modulePersonelSlots as $slot)
                                             @php
-                                                $requiredCompetencies = $pp->personelSlot?->competencies ?? collect();
-                                                $personelCompetencies = $pp->personel?->competencies ?? collect();
-                                                $personelCompetencyIds = $personelCompetencies->pluck('id');
+                                                $assignedPersonels = $assignedBySlot->get($slot->id, collect());
+                                                $assignedCount = $assignedPersonels->count();
+                                                $requiredCount = $slot->quantity;
+                                                $isFulfilled = $assignedCount >= $requiredCount;
+                                                $isOver = $assignedCount > $requiredCount;
+                                                $slotCompetencies = $slot->competencies ?? collect();
                                             @endphp
-                                            <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                                                <div class="flex items-center gap-3 mb-2">
-                                                    <div class="flex-shrink-0 h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
-                                                        {{ substr($pp->personel?->name ?? '?', 0, 1) }}
+                                            <div class="p-3 rounded-lg border {{ $isFulfilled ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50' : 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10' }}">
+                                                {{-- Slot Header --}}
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $slot->position_name }}</span>
+                                                        <span class="px-1.5 py-0.5 text-[10px] font-medium rounded {{ $slot->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                                                            {{ $slot->nature === 'mandatory' ? 'Wajib' : 'Opsional' }}
+                                                        </span>
                                                     </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $pp->personel?->name ?? '-' }}</p>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                            {{ $pp->personelSlot?->position_name ?? '-' }}
-                                                            <span class="ml-1 px-1.5 py-0.5 rounded {{ $pp->personelSlot?->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
-                                                                {{ $pp->personelSlot?->nature === 'mandatory' ? 'Wajib' : 'Opsional' }}
-                                                            </span>
-                                                        </p>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[10px] font-semibold uppercase tracking-wider {{ $isFulfilled ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400' }}">
+                                                            {{ $assignedCount }}/{{ $requiredCount }} terisi
+                                                        </span>
+                                                        @if($isFulfilled && !$isOver)
+                                                            <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                        @elseif($isOver)
+                                                            <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        @else
+                                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                        @endif
                                                     </div>
                                                 </div>
-                                                @if($requiredCompetencies->isNotEmpty())
-                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                                        <p class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Kompetensi</p>
+                                                {{-- Required Competencies --}}
+                                                @if($slotCompetencies->isNotEmpty())
+                                                    @php
+                                                        $allAssignedCompetencyIds = $assignedPersonels->flatMap(fn($pp) => ($pp->personel?->competencies ?? collect())->pluck('id'))->unique();
+                                                    @endphp
+                                                    <div class="mb-2">
+                                                        <p class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Kompetensi Dibutuhkan</p>
                                                         <div class="flex flex-wrap gap-1">
-                                                            @foreach($requiredCompetencies as $reqComp)
+                                                            @foreach($slotCompetencies as $reqComp)
                                                                 @php
-                                                                    $fulfilled = $personelCompetencyIds->contains($reqComp->id);
+                                                                    $reqFulfilled = $allAssignedCompetencyIds->contains($reqComp->id);
                                                                 @endphp
-                                                                <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $fulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
-                                                                    @if($fulfilled)
+                                                                <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $reqFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
+                                                                    @if($reqFulfilled)
                                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                                     @else
-                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                                     @endif
                                                                     {{ $reqComp->name }}
                                                                 </span>
                                                             @endforeach
                                                         </div>
+                                                    </div>
+                                                @endif
+                                                {{-- Assigned Personels --}}
+                                                @if($assignedPersonels->isNotEmpty())
+                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
+                                                        <p class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Personel Ditugaskan</p>
+                                                        @foreach($assignedPersonels as $pp)
+                                                            @php
+                                                                $personelCompetencies = $pp->personel?->competencies ?? collect();
+                                                                $personelCompetencyIds = $personelCompetencies->pluck('id');
+                                                            @endphp
+                                                            <div class="flex items-start gap-3 p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-xs">
+                                                                    {{ substr($pp->personel?->name ?? '?', 0, 1) }}
+                                                                </div>
+                                                                <div class="flex-1 min-w-0">
+                                                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $pp->personel?->name ?? '-' }}</p>
+                                                                    @if($personelCompetencies->isNotEmpty())
+                                                                        <div class="flex flex-wrap gap-1 mt-1">
+                                                                            @foreach($slotCompetencies as $reqComp)
+                                                                                @php
+                                                                                    $fulfilled = $personelCompetencyIds->contains($reqComp->id);
+                                                                                @endphp
+                                                                                <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $fulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
+                                                                                    @if($fulfilled)
+                                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                                                    @else
+                                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                                    @endif
+                                                                                    {{ $reqComp->name }}
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <p class="text-xs text-amber-600 dark:text-amber-400 italic">Belum ada personel ditugaskan untuk posisi ini.</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                        {{-- Assigned personels without a matching slot (shouldn't normally happen) --}}
+                                        @php $unslotted = $personels->filter(fn($pp) => !$modulePersonelSlots->contains('id', $pp->module_personel_id)); @endphp
+                                        @if($unslotted->isNotEmpty())
+                                            @foreach($unslotted as $pp)
+                                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-xs">
+                                                            {{ substr($pp->personel?->name ?? '?', 0, 1) }}
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $pp->personel?->name ?? '-' }}</p>
+                                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $pp->personelSlot?->position_name ?? '-' }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Peralatan: Requirement vs Actual --}}
+                            @php
+                                $moduleToolSlots = $module->tools;
+                                $assignedToolsBySlot = $peralatans->groupBy('module_tool_id');
+                            @endphp
+                            @if($moduleToolSlots->isNotEmpty() || $peralatans->isNotEmpty())
+                                <div>
+                                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Peralatan</h4>
+                                    <div class="space-y-3">
+                                        @foreach($moduleToolSlots as $tool)
+                                            @php
+                                                $assignedPeralatans = $assignedToolsBySlot->get($tool->id, collect());
+                                                $assignedCount = $assignedPeralatans->count();
+                                                $requiredCount = $tool->quantity;
+                                                $toolFulfilled = $assignedCount >= $requiredCount;
+                                                $toolOver = $assignedCount > $requiredCount;
+                                                $peralatanName = $tool->peralatan?->name ?? '-';
+                                                $requiresCalibration = $tool->requires_calibration ?? false;
+                                                $calibrationFulfilled = $requiresCalibration && $assignedPeralatans->isNotEmpty() && $assignedPeralatans->every(function($pp) {
+                                                    $cs = $pp->peralatan?->calibration_status;
+                                                    $expired = $pp->peralatan?->calibration_status_expired ?? false;
+                                                    return $cs && $cs->value === 'calibrated' && !$expired;
+                                                });
+                                            @endphp
+                                            <div class="p-3 rounded-lg border {{ $toolFulfilled ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50' : 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10' }}">
+                                                {{-- Tool Header --}}
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $peralatanName }}</p>
+                                                            <p class="text-[10px] text-gray-500 dark:text-gray-400">{{ $tool->peralatan?->code ?? '-' }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[10px] font-semibold uppercase tracking-wider {{ $toolFulfilled ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400' }}">
+                                                            {{ $assignedCount }}/{{ $requiredCount }} terisi
+                                                        </span>
+                                                        @if($toolFulfilled && !$toolOver)
+                                                            <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                        @elseif($toolOver)
+                                                            <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        @else
+                                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                {{-- Tool Requirements --}}
+                                                <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                                                    @if($requiresCalibration)
+                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $calibrationFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' }}">
+                                                            @if($calibrationFulfilled)
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                            @else
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                            @endif
+                                                            {{ $calibrationFulfilled ? 'Kalibrasi Terpenuhi' : 'Perlu Kalibrasi' }}
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                            Tanpa Kalibrasi
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                {{-- Assigned Peralatan --}}
+                                                @if($assignedPeralatans->isNotEmpty())
+                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
+                                                        <p class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Peralatan Ditugaskan</p>
+                                                        @foreach($assignedPeralatans as $pp)
+                                                            @php
+                                                                $peralatan = $pp->peralatan;
+                                                                $calibrationStatus = $peralatan?->calibration_status;
+                                                                $isExpired = $peralatan?->calibration_status_expired ?? false;
+                                                                $expiredDate = $peralatan?->calibration_expired_date;
+                                                                $calibrationOk = !$requiresCalibration || ($calibrationStatus && $calibrationStatus->value === 'calibrated' && !$isExpired);
+                                                            @endphp
+                                                            <div class="p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div class="flex items-center justify-between gap-2">
+                                                                    <div class="flex items-center gap-2 min-w-0">
+                                                                        <div class="flex-shrink-0 h-7 w-7 rounded-lg bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white">
+                                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                                        </div>
+                                                                        <div class="min-w-0">
+                                                                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $peralatan?->name ?? '-' }}</p>
+                                                                            <p class="text-[10px] text-gray-500 dark:text-gray-400">{{ $peralatan?->code ?? '-' }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                                                    @if($requiresCalibration && $calibrationStatus)
+                                                                        @php
+                                                                            $statusColor = match($calibrationStatus->value) {
+                                                                                'calibrated' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                                                                                'expired' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                                                                                'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                                                                'not_required' => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+                                                                                default => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+                                                                            };
+                                                                        @endphp
+                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $statusColor }}">
+                                                                            @if($calibrationStatus->value === 'calibrated' && !$isExpired)
+                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                                            @elseif($isExpired)
+                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                            @endif
+                                                                            {{ $calibrationStatus->label() }}
+                                                                        </span>
+                                                                    @elseif(!$requiresCalibration)
+                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                                            Sesuai
+                                                                        </span>
+                                                                    @endif
+                                                                    @if($expiredDate)
+                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $isExpired ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                                            Exp: {{ $expiredDate->format('d M Y') }}
+                                                                            @if($isExpired)
+                                                                                <span class="font-semibold">(Expired)</span>
+                                                                            @endif
+                                                                        </span>
+                                                                    @endif
+                                                                    @if($peralatan?->condition)
+                                                                        <span class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                                            Kondisi: {{ $peralatan->condition->label() }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <p class="text-xs text-amber-600 dark:text-amber-400 italic">Belum ada peralatan ditugaskan untuk kebutuhan ini.</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -392,78 +613,7 @@
                                 </div>
                             @endif
 
-                            {{-- Peralatan in this module --}}
-                            @if($peralatans->isNotEmpty())
-                                <div>
-                                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Peralatan ({{ $peralatans->count() }})</h4>
-                                    <div class="space-y-2">
-                                        @foreach($peralatans as $pp)
-                                            @php
-                                                $peralatan = $pp->peralatan;
-                                                $requiresCalibration = $pp->tool?->requires_calibration ?? false;
-                                                $calibrationStatus = $peralatan?->calibration_status;
-                                                $isExpired = $peralatan?->calibration_status_expired ?? false;
-                                                $expiredDate = $peralatan?->calibration_expired_date;
-                                            @endphp
-                                            <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="flex-shrink-0 h-9 w-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                                    </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $peralatan?->name ?? '-' }}</p>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                            {{ $peralatan?->code ?? '-' }} · Qty: {{ $pp->tool?->quantity ?? 1 }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 flex flex-wrap items-center gap-2">
-                                                    @if($requiresCalibration)
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                            Perlu Kalibrasi
-                                                        </span>
-                                                    @else
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                                            Tidak Perlu Kalibrasi
-                                                        </span>
-                                                    @endif
-                                                    @if($calibrationStatus)
-                                                        @php
-                                                            $statusColor = match($calibrationStatus->value) {
-                                                                'calibrated' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                                                                'expired' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-                                                                'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-                                                                'not_required' => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-                                                                default => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-                                                            };
-                                                        @endphp
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $statusColor }}">
-                                                            {{ $calibrationStatus->label() }}
-                                                        </span>
-                                                    @endif
-                                                    @if($expiredDate)
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $isExpired ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
-                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                            Exp: {{ $expiredDate->format('d M Y') }}
-                                                            @if($isExpired)
-                                                                <span class="font-semibold">(Expired)</span>
-                                                            @endif
-                                                        </span>
-                                                    @endif
-                                                    @if($peralatan?->condition)
-                                                        <span class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                                            Kondisi: {{ $peralatan->condition->label() }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-
-                            @if($personels->isEmpty() && $peralatans->isEmpty())
+                            @if($personels->isEmpty() && $peralatans->isEmpty() && $module->personels->isEmpty() && $module->tools->isEmpty())
                                 <p class="text-sm text-gray-400 dark:text-gray-500 italic">Belum ada penugasan personel atau peralatan pada modul ini.</p>
                             @endif
                         </div>
