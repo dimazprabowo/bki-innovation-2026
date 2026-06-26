@@ -102,8 +102,8 @@ class PersonelService
 
                     if ($pivot) {
                         // Delete file if exists
-                        if ($pivot->certificate_file_path && Storage::disk('local')->exists($pivot->certificate_file_path)) {
-                            Storage::disk('local')->delete($pivot->certificate_file_path);
+                        if ($pivot->certificate_file_path && Storage::disk(file_disk())->exists($pivot->certificate_file_path)) {
+                            Storage::disk(file_disk())->delete($pivot->certificate_file_path);
                         }
                         // Delete pivot record
                         DB::table('personel_competency')
@@ -186,8 +186,8 @@ class PersonelService
                 ->get();
 
             foreach ($competencies as $competency) {
-                if ($competency->certificate_file_path && Storage::disk('local')->exists($competency->certificate_file_path)) {
-                    Storage::disk('local')->delete($competency->certificate_file_path);
+                if ($competency->certificate_file_path && Storage::disk(file_disk())->exists($competency->certificate_file_path)) {
+                    Storage::disk(file_disk())->delete($competency->certificate_file_path);
                 }
             }
 

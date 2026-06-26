@@ -47,7 +47,7 @@ class ProcessPeralatanEvidence implements ShouldQueue
             $finalFileName = time() . '_' . uniqid() . '.' . $extension;
             $destinationPath = 'peralatan-evidence/' . $finalFileName;
 
-            Storage::disk('local')->put($destinationPath, $fileContent);
+            Storage::disk(file_disk())->put($destinationPath, $fileContent);
             Storage::disk('local')->delete($this->tempPath);
 
             $evidence->update([

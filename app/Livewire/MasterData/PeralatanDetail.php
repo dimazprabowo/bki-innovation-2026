@@ -38,7 +38,7 @@ class PeralatanDetail extends Component
             return;
         }
 
-        if (!Storage::disk('local')->exists($evidence->file_path)) {
+        if (!Storage::disk(file_disk())->exists($evidence->file_path)) {
             $this->notifyError('File tidak ditemukan di penyimpanan.');
             return;
         }
@@ -48,7 +48,7 @@ class PeralatanDetail extends Component
         $originalExtension = pathinfo($evidence->file_name, PATHINFO_EXTENSION);
         $downloadName = "{$peralatanName}_{$evidenceName}.{$originalExtension}";
 
-        return Storage::disk('local')->download($evidence->file_path, $downloadName);
+        return Storage::disk(file_disk())->download($evidence->file_path, $downloadName);
     }
 
     public function render()

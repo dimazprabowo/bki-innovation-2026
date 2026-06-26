@@ -192,7 +192,7 @@ class PeralatanForm extends Component
             return;
         }
 
-        if (!\Storage::disk('local')->exists($evidence['file_path'])) {
+        if (!\Storage::disk(file_disk())->exists($evidence['file_path'])) {
             $this->notifyError('File tidak ditemukan.');
             return;
         }
@@ -205,7 +205,7 @@ class PeralatanForm extends Component
         $originalExtension = pathinfo($evidence['file_name'], PATHINFO_EXTENSION);
         $newFileName = "{$peralatanName}_{$evidenceName}.{$originalExtension}";
 
-        return \Storage::disk('local')->download($evidence['file_path'], $newFileName);
+        return \Storage::disk(file_disk())->download($evidence['file_path'], $newFileName);
     }
 
     public function hasProcessingEvidenceFiles(): bool

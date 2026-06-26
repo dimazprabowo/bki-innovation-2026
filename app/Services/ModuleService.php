@@ -165,8 +165,8 @@ class ModuleService
                     $reference = $module->workOrderReferences()->find($referenceId);
                     if ($reference) {
                         // Delete file if exists
-                        if ($reference->file_path && Storage::disk('local')->exists($reference->file_path)) {
-                            Storage::disk('local')->delete($reference->file_path);
+                        if ($reference->file_path && Storage::disk(file_disk())->exists($reference->file_path)) {
+                            Storage::disk(file_disk())->delete($reference->file_path);
                         }
                         $reference->delete();
                     }

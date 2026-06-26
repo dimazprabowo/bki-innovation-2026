@@ -46,7 +46,7 @@ class ProcessPersonelCertificate implements ShouldQueue
             $finalFileName = time() . '_' . uniqid() . '.' . $extension;
             $destinationPath = 'personel-certificates/' . $finalFileName;
 
-            Storage::disk('local')->put($destinationPath, $fileContent);
+            Storage::disk(file_disk())->put($destinationPath, $fileContent);
             Storage::disk('local')->delete($this->tempPath);
 
             DB::table('personel_competency')

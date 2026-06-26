@@ -120,8 +120,8 @@ class PeralatanService
                     $evidence = $peralatan->evidences()->find($evidenceId);
                     if ($evidence) {
                         // Delete file if exists
-                        if ($evidence->file_path && Storage::disk('local')->exists($evidence->file_path)) {
-                            Storage::disk('local')->delete($evidence->file_path);
+                        if ($evidence->file_path && Storage::disk(file_disk())->exists($evidence->file_path)) {
+                            Storage::disk(file_disk())->delete($evidence->file_path);
                         }
                         $evidence->delete();
                     }
@@ -184,8 +184,8 @@ class PeralatanService
         return DB::transaction(function () use ($peralatan) {
             // Delete all evidence files
             foreach ($peralatan->evidences as $evidence) {
-                if (Storage::disk('local')->exists($evidence->file_path)) {
-                    Storage::disk('local')->delete($evidence->file_path);
+                if (Storage::disk(file_disk())->exists($evidence->file_path)) {
+                    Storage::disk(file_disk())->delete($evidence->file_path);
                 }
             }
 

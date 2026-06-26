@@ -163,8 +163,8 @@ class ProjectDeliverables extends Component
             return;
         }
 
-        if ($deliverable->file_path && Storage::disk('local')->exists($deliverable->file_path)) {
-            Storage::disk('local')->delete($deliverable->file_path);
+        if ($deliverable->file_path && Storage::disk(file_disk())->exists($deliverable->file_path)) {
+            Storage::disk(file_disk())->delete($deliverable->file_path);
         }
 
         $deliverable->delete();
@@ -196,12 +196,12 @@ class ProjectDeliverables extends Component
             return;
         }
 
-        if (!Storage::disk('local')->exists($deliverable->file_path)) {
+        if (!Storage::disk(file_disk())->exists($deliverable->file_path)) {
             $this->notifyError('File tidak ditemukan.');
             return;
         }
 
-        return Storage::disk('local')->download($deliverable->file_path, $deliverable->file_name);
+        return Storage::disk(file_disk())->download($deliverable->file_path, $deliverable->file_name);
     }
 
     public function previewDeliverable(int $deliverableId): void
@@ -213,7 +213,7 @@ class ProjectDeliverables extends Component
             return;
         }
 
-        if (!Storage::disk('local')->exists($deliverable->file_path)) {
+        if (!Storage::disk(file_disk())->exists($deliverable->file_path)) {
             $this->notifyError('File tidak ditemukan.');
             return;
         }
@@ -226,8 +226,8 @@ class ProjectDeliverables extends Component
             return;
         }
 
-        $mimeType = Storage::disk('local')->mimeType($deliverable->file_path);
-        $fileContent = Storage::disk('local')->get($deliverable->file_path);
+        $mimeType = Storage::disk(file_disk())->mimeType($deliverable->file_path);
+        $fileContent = Storage::disk(file_disk())->get($deliverable->file_path);
         $base64 = base64_encode($fileContent);
         $dataUri = 'data:' . $mimeType . ';base64,' . $base64;
 

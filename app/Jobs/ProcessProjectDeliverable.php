@@ -47,7 +47,7 @@ class ProcessProjectDeliverable implements ShouldQueue
             $finalFileName = time() . '_' . uniqid() . '.' . $extension;
             $destinationPath = 'project-deliverables/' . $deliverable->project_id . '/' . $finalFileName;
 
-            Storage::disk('local')->put($destinationPath, $fileContent);
+            Storage::disk(file_disk())->put($destinationPath, $fileContent);
             Storage::disk('local')->delete($this->tempPath);
 
             $deliverable->update([

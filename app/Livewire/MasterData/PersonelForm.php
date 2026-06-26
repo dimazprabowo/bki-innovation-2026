@@ -197,7 +197,7 @@ class PersonelForm extends Component
             return;
         }
 
-        if (!\Storage::disk('local')->exists($competency['certificate_file_path'])) {
+        if (!\Storage::disk(file_disk())->exists($competency['certificate_file_path'])) {
             $this->notifyError('File tidak ditemukan.');
             return;
         }
@@ -212,7 +212,7 @@ class PersonelForm extends Component
         $originalExtension = pathinfo($competency['certificate_file_name'], PATHINFO_EXTENSION);
         $newFileName = "{$competencyName}_{$competencyLevel}_{$personelCode}.{$originalExtension}";
 
-        return \Storage::disk('local')->download($competency['certificate_file_path'], $newFileName);
+        return \Storage::disk(file_disk())->download($competency['certificate_file_path'], $newFileName);
     }
 
     public function hasProcessingCompetencyFiles(): bool

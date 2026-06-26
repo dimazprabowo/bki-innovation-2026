@@ -178,3 +178,14 @@ if (!function_exists('formatRupiah')) {
         return $withPrefix ? 'Rp ' . $formatted : $formatted;
     }
 }
+
+if (!function_exists('file_disk')) {
+    /**
+     * Get the configured filesystem disk for permanent file storage.
+     * Uses Laravel's default filesystem disk (FILESYSTEM_DISK in .env).
+     */
+    function file_disk(): string
+    {
+        return config('filesystems.default', 'local');
+    }
+}

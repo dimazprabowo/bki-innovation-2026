@@ -527,7 +527,7 @@ class ModuleForm extends Component
             return;
         }
 
-        if (!\Storage::disk('local')->exists($reference['file_path'])) {
+        if (!\Storage::disk(file_disk())->exists($reference['file_path'])) {
             $this->notifyError('File tidak ditemukan.');
             return;
         }
@@ -540,7 +540,7 @@ class ModuleForm extends Component
         $originalExtension = pathinfo($reference['file_path'], PATHINFO_EXTENSION);
         $newFileName = "{$moduleName}_{$referenceName}.{$originalExtension}";
 
-        return \Storage::disk('local')->download($reference['file_path'], $newFileName);
+        return \Storage::disk(file_disk())->download($reference['file_path'], $newFileName);
     }
 
     public function addPersonel()
