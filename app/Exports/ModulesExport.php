@@ -17,11 +17,13 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
 
     protected ?string $search;
     protected ?string $riskFilter;
+    protected ?string $reviewStatusFilter;
 
-    public function __construct(?string $search = null, ?string $riskFilter = null)
+    public function __construct(?string $search = null, ?string $riskFilter = null, ?string $reviewStatusFilter = null)
     {
         $this->search = $search;
         $this->riskFilter = $riskFilter;
+        $this->reviewStatusFilter = $reviewStatusFilter;
     }
 
     public function query()

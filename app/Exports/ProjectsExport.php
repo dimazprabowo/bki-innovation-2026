@@ -20,12 +20,16 @@ class ProjectsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
     protected ?string $search;
     protected ?string $statusFilter;
     protected ?string $riskFilter;
+    protected ?string $approvalFilter;
+    protected ?string $priorityFilter;
 
-    public function __construct(?string $search = null, ?string $statusFilter = null, ?string $riskFilter = null)
+    public function __construct(?string $search = null, ?string $statusFilter = null, ?string $riskFilter = null, ?string $approvalFilter = null, ?string $priorityFilter = null)
     {
         $this->search = $search;
         $this->statusFilter = $statusFilter;
         $this->riskFilter = $riskFilter;
+        $this->approvalFilter = $approvalFilter;
+        $this->priorityFilter = $priorityFilter;
     }
 
     public function query()
@@ -46,6 +50,14 @@ class ProjectsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
 
         if ($this->riskFilter !== null && $this->riskFilter !== '') {
             $query->where('risk_level', $this->riskFilter);
+        }
+
+        if ($this->approvalFilter !== null && $this->approvalFilter !== '') {
+            $query->where('approval_status', $this->approvalFilter);
+        }
+
+        if ($this->priorityFilter !== null && $this->priorityFilter !== '') {
+            $query->where('priority', $this->priorityFilter);
         }
 
         return $query->orderBy('created_at', 'desc');

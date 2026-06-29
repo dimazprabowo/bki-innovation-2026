@@ -19,17 +19,20 @@ class PeralatanExport implements FromQuery, WithHeadings, WithMapping, WithStyle
     protected ?string $calibrationStatus;
     protected ?string $condition;
     protected ?string $ownershipStatus;
+    protected ?string $reviewStatusFilter;
 
     public function __construct(
         ?string $search = null,
         ?string $calibrationStatus = null,
         ?string $condition = null,
-        ?string $ownershipStatus = null
+        ?string $ownershipStatus = null,
+        ?string $reviewStatusFilter = null
     ) {
         $this->search = $search;
         $this->calibrationStatus = $calibrationStatus;
         $this->condition = $condition;
         $this->ownershipStatus = $ownershipStatus;
+        $this->reviewStatusFilter = $reviewStatusFilter;
     }
 
     public function query()
@@ -54,6 +57,10 @@ class PeralatanExport implements FromQuery, WithHeadings, WithMapping, WithStyle
 
         if ($this->ownershipStatus) {
             $query->where('ownership_status', $this->ownershipStatus);
+        }
+
+        if ($this->reviewStatusFilter !== null && $this->reviewStatusFilter !== '') {
+            $query->where('review_status', $this->reviewStatusFilter);
         }
 
         return $query->where('is_active', true)->with('evidences')->orderBy('name');

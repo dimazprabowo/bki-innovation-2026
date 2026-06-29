@@ -213,7 +213,8 @@ class PeralatanManagement extends Component
             $this->search,
             $this->calibrationStatusFilter ?: null,
             $this->conditionFilter ?: null,
-            $this->ownershipStatusFilter ?: null
+            $this->ownershipStatusFilter ?: null,
+            $this->reviewStatusFilter ?: null
         ))
             ->download('peralatan-' . now()->format('Y-m-d-His') . '.xlsx');
     }
@@ -238,6 +239,9 @@ class PeralatanManagement extends Component
             })
             ->when($this->ownershipStatusFilter, function ($q) {
                 $q->where('ownership_status', $this->ownershipStatusFilter);
+            })
+            ->when($this->reviewStatusFilter !== null && $this->reviewStatusFilter !== '', function ($q) {
+                $q->where('review_status', $this->reviewStatusFilter);
             })
             ->where('is_active', true)
             ->with('evidences')

@@ -86,7 +86,7 @@ class ProjectManagement extends Component
     {
         $this->authorize('exportExcel', Project::class);
 
-        return (new ProjectsExport($this->search, $this->statusFilter, $this->riskFilter))
+        return (new ProjectsExport($this->search, $this->statusFilter, $this->riskFilter, $this->approvalFilter, $this->priorityFilter))
             ->download('project-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
