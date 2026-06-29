@@ -428,8 +428,9 @@ class ChatIndex extends Component
             $searchResults = User::active()
                 ->where('id', '!=', $userId)
                 ->where(function ($q) {
-                    $q->where('name', 'ilike', "%{$this->searchUser}%")
-                      ->orWhere('email', 'ilike', "%{$this->searchUser}%");
+                    $operator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                    $q->where('name', $operator, "%{$this->searchUser}%")
+                      ->orWhere('email', $operator, "%{$this->searchUser}%");
                 })
                 ->limit(10)
                 ->get();
