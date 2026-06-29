@@ -14,11 +14,11 @@ return new class extends Migration
             $table->string('document_name');
             $table->string('document_id')->nullable();
             $table->string('file_path')->nullable();
-            $table->string('file_name')->nullable()->after('file_path');
-            $table->unsignedBigInteger('file_size')->nullable()->after('file_name');
-            $table->enum('file_status', ['pending', 'processing', 'completed', 'failed'])->default('pending')->after('file_size');
-            $table->timestamp('file_processed_at')->nullable()->after('file_status');
-            $table->text('file_error')->nullable()->after('file_processed_at');
+            $table->string('file_name')->nullable();
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->enum('file_status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+            $table->timestamp('file_processed_at')->nullable();
+            $table->text('file_error')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
