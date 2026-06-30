@@ -9,6 +9,7 @@ class SystemConfigurationService
 {
     public function getFiltered(
         ?string $search = null,
+        ?string $isActive = null,
         int $perPage = 15
     ): LengthAwarePaginator {
         $query = SystemConfiguration::query();
@@ -19,6 +20,10 @@ class SystemConfigurationService
                   ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('value', 'like', "%{$search}%");
             });
+        }
+
+        if ($isActive !== null && $isActive !== '') {
+            $query->where('is_active', $isActive === '1');
         }
 
         return $query->orderBy('category')->orderBy('key')->paginate($perPage);

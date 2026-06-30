@@ -18,12 +18,14 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
     protected ?string $search;
     protected ?string $riskFilter;
     protected ?string $reviewStatusFilter;
+    protected ?string $isActive;
 
-    public function __construct(?string $search = null, ?string $riskFilter = null, ?string $reviewStatusFilter = null)
+    public function __construct(?string $search = null, ?string $riskFilter = null, ?string $reviewStatusFilter = null, ?string $isActive = null)
     {
         $this->search = $search;
         $this->riskFilter = $riskFilter;
         $this->reviewStatusFilter = $reviewStatusFilter;
+        $this->isActive = $isActive;
     }
 
     public function query()
@@ -43,6 +45,10 @@ class ModulesExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
 
         if ($this->reviewStatusFilter !== null && $this->reviewStatusFilter !== '') {
             $query->where('review_status', $this->reviewStatusFilter);
+        }
+
+        if ($this->isActive !== null && $this->isActive !== '') {
+            $query->where('is_active', $this->isActive === '1');
         }
 
         return $query->orderBy('name');

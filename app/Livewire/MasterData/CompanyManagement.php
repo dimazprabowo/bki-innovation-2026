@@ -18,6 +18,7 @@ class CompanyManagement extends Component
 
     public $search = '';
     public $statusFilter = '';
+    public bool $filterChanged = false;
     public $showModal = false;
     public $editMode = false;
 
@@ -84,11 +85,29 @@ class CompanyManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->statusFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getStatusOptionsProperty(): array
+    {
+        return collect(CompanyStatus::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
     }
 
     public function create()
@@ -280,12 +299,15 @@ class CompanyManagement extends Component
 
     public function render(CompanyService $service)
     {
+        $companies = $service->getFiltered($this->search, $this->statusFilter);
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$companies->total()} data perusahaan.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.master-data.company-management', [
-            'companies' => $service->getFiltered(
-                $this->search,
-                $this->statusFilter
-            ),
-            'statuses' => CompanyStatus::cases(),
+            'companies' => $companies,
         ]);
     }
 }

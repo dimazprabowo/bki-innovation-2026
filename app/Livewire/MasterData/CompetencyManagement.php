@@ -17,6 +17,8 @@ class CompetencyManagement extends Component
 
     public $search = '';
     public $levelFilter = '';
+    public $isActiveFilter = '';
+    public bool $filterChanged = false;
     public $showModal = false;
     public $editMode = false;
 
@@ -61,11 +63,36 @@ class CompetencyManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingLevelFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function updatedIsActiveFilter()
+    {
+        $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->levelFilter = '';
+        $this->isActiveFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Nonaktif'],
+        ];
     }
 
     public function create()
@@ -198,7 +225,7 @@ class CompetencyManagement extends Component
     {
         $this->authorize('exportExcel', Competency::class);
 
-        return (new CompetenciesExport($this->search, $this->levelFilter))
+        return (new CompetenciesExport($this->search, $this->levelFilter, $this->isActiveFilter !== '' ? $this->isActiveFilter : null))
             ->download('kompetensi-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
@@ -216,7 +243,9 @@ class CompetencyManagement extends Component
             ->when($this->levelFilter !== null && $this->levelFilter !== '', function ($q) {
                 $q->where('level', $this->levelFilter);
             })
-            ->where('is_active', true)
+            ->when($this->isActiveFilter !== null && $this->isActiveFilter !== '', function ($q) {
+                $q->where('is_active', $this->isActiveFilter === '1');
+            })
             ->orderBy('name')
             ->get();
 
@@ -233,12 +262,19 @@ class CompetencyManagement extends Component
     {
         $levelOptions = $service->getLevelOptions();
 
+        $competencies = $service->getFiltered(
+            $this->search,
+            $this->levelFilter,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null
+        );
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$competencies->total()} data kompetensi.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.master-data.competency-management', [
-            'competencies' => $service->getFiltered(
-                $this->search,
-                $this->levelFilter,
-                false
-            ),
+            'competencies' => $competencies,
             'levelOptions' => $levelOptions,
         ])->with('levelOptions', $levelOptions);
     }

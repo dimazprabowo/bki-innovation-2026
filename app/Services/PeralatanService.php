@@ -14,7 +14,7 @@ class PeralatanService
 {
     public function getFiltered(
         ?string $search = null,
-        ?bool $activeOnly = false,
+        ?string $isActive = null,
         ?string $calibrationStatus = null,
         ?string $condition = null,
         ?string $ownershipStatus = null,
@@ -22,7 +22,7 @@ class PeralatanService
         ?string $reviewStatus = null
     ): LengthAwarePaginator {
         return Peralatan::query()
-            ->when($activeOnly, fn ($q) => $q->active())
+            ->when($isActive !== null && $isActive !== '', fn ($q) => $q->where('is_active', $isActive === '1'))
             ->search($search)
             ->byCalibrationStatus($calibrationStatus)
             ->byCondition($condition)

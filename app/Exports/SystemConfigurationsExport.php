@@ -16,10 +16,12 @@ class SystemConfigurationsExport implements FromQuery, WithHeadings, WithMapping
     use Exportable;
 
     protected ?string $search;
+    protected ?string $isActive;
 
-    public function __construct(?string $search = null)
+    public function __construct(?string $search = null, ?string $isActive = null)
     {
         $this->search = $search;
+        $this->isActive = $isActive;
     }
 
     public function query()
@@ -32,6 +34,10 @@ class SystemConfigurationsExport implements FromQuery, WithHeadings, WithMapping
                   ->orWhere('description', 'like', "%{$this->search}%")
                   ->orWhere('value', 'like', "%{$this->search}%");
             });
+        }
+
+        if ($this->isActive !== null && $this->isActive !== '') {
+            $query->where('is_active', $this->isActive === '1');
         }
 
         return $query->orderBy('category')->orderBy('key');

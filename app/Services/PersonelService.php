@@ -13,12 +13,12 @@ class PersonelService
 {
     public function getFiltered(
         ?string $search = null,
-        ?bool $activeOnly = false,
+        ?string $isActive = null,
         ?int $competencyId = null,
         int $perPage = 10
     ): LengthAwarePaginator {
         return Personel::query()
-            ->when($activeOnly, fn ($q) => $q->active())
+            ->when($isActive !== null && $isActive !== '', fn ($q) => $q->where('is_active', $isActive === '1'))
             ->search($search)
             ->when($competencyId, function ($query) use ($competencyId) {
                 $query->whereHas('competencies', function ($q) use ($competencyId) {

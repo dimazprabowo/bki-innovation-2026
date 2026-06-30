@@ -1,31 +1,73 @@
 <div>
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center gap-3">
+    <div class="mb-6 flex flex-col md:flex-row md:items-center gap-3" x-data="{ filterOpen: false }">
         <!-- Search -->
-        <div class="flex-1">
+        <div class="flex-1 w-full md:w-auto">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari user..."
                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
         </div>
-        
-        <!-- Filters -->
-        <div class="w-full lg:w-48">
+
+        <!-- Status Aktif Filter -->
+        <div class="w-full md:w-36">
             <x-searchable-select
-                wire:model.live="roleFilter"
-                :options="collect([['value' => '', 'label' => 'Semua Role']])->concat($roles->map(fn($r) => ['value' => $r->name, 'label' => ucfirst($r->name)]))->toArray()"
-                placeholder="Semua Role"
-                searchPlaceholder="Cari role..."
-            />
-        </div>
-        <div class="w-full lg:w-40">
-            <x-searchable-select
-                wire:model.live="statusFilter"
-                :options="[['value' => '', 'label' => 'Semua Status'], ['value' => '1', 'label' => 'Aktif'], ['value' => '0', 'label' => 'Nonaktif']]"
+                wire:model.live="isActiveFilter"
+                :options="$this->isActiveOptions"
                 placeholder="Semua Status"
                 searchPlaceholder="Cari status..."
             />
         </div>
-        
+
+        <!-- More Filters Button with Popover -->
+        <div class="relative w-full md:w-auto" @click.outside="filterOpen = false">
+            <button type="button" @click="filterOpen = !filterOpen"
+                class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full md:w-auto">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                <span>Filter</span>
+                <template x-if="$wire.roleFilter !== '' && $wire.roleFilter !== null">
+                    <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-blue-600 rounded-full">1</span>
+                </template>
+            </button>
+
+            <!-- Filter Popover Panel -->
+            <div x-show="filterOpen" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 p-4"
+                style="display: none;">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Role</label>
+                        <x-searchable-select
+                            wire:model.live="roleFilter"
+                            :options="$this->roleOptions"
+                            placeholder="Semua Role"
+                            searchPlaceholder="Cari role..."
+                        />
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                    <button @click="filterOpen = false" type="button"
+                        class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">
+                        Tutup
+                    </button>
+                    <button wire:click="resetFilters" wire:loading.attr="disabled" wire:target="resetFilters" type="button"
+                        class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition disabled:opacity-50">
+                        <svg wire:loading.class="hidden" wire:target="resetFilters" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <svg wire:loading wire:target="resetFilters" class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                        <span wire:loading.class="hidden" wire:target="resetFilters">Reset Filter</span>
+                        <span wire:loading wire:target="resetFilters">Loading</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Action Buttons -->
-        <div class="flex items-center gap-2 w-full lg:w-auto">
+        <div class="flex items-center gap-2 w-full md:w-auto">
             @can('users_export_excel')
                 <x-loading-button wire:click="exportExcel" target="exportExcel" variant="success" size="md" loadingText="Exporting..." title="Export Excel">
                     <x-slot:icon>
@@ -43,7 +85,7 @@
                 </x-loading-button>
             @endcan
             @can('users_create')
-                <x-loading-button wire:click="create" target="create" variant="primary" size="md" loadingText="Memuat..." class="flex-1 lg:flex-none">
+                <x-loading-button wire:click="create" target="create" variant="primary" size="md" loadingText="Memuat..." class="flex-1 md:flex-none">
                     <x-slot:icon>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </x-slot:icon>

@@ -11,11 +11,11 @@ class CompetencyService
     public function getFiltered(
         ?string $search = null,
         ?string $level = null,
-        ?bool $activeOnly = false,
+        ?string $isActive = null,
         int $perPage = 10
     ): LengthAwarePaginator {
         return Competency::query()
-            ->when($activeOnly, fn ($q) => $q->active())
+            ->when($isActive !== null && $isActive !== '', fn ($q) => $q->where('is_active', $isActive === '1'))
             ->search($search)
             ->byLevel($level)
             ->orderBy('name')

@@ -23,6 +23,7 @@ class ProjectManagement extends Component
     public $approvalFilter = '';
     public $riskFilter = '';
     public $priorityFilter = '';
+    public bool $filterChanged = false;
 
     public $showDeleteModal = false;
     public $deletingProjectId;
@@ -36,26 +37,66 @@ class ProjectManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingApprovalFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingRiskFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingPriorityFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->statusFilter = '';
+        $this->approvalFilter = '';
+        $this->riskFilter = '';
+        $this->priorityFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getStatusOptionsProperty(): array
+    {
+        return collect(ProjectStatus::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
+    }
+
+    public function getApprovalStatusOptionsProperty(): array
+    {
+        return collect(ApprovalStatus::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
+    }
+
+    public function getRiskLevelOptionsProperty(): array
+    {
+        return collect(RiskLevel::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
     }
 
     public function confirmDelete($id)
@@ -115,17 +156,21 @@ class ProjectManagement extends Component
 
     public function render(ProjectService $service)
     {
+        $projects = $service->getFiltered(
+            $this->search,
+            $this->statusFilter,
+            $this->approvalFilter,
+            $this->riskFilter,
+            $this->priorityFilter
+        );
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$projects->total()} data project.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.pages.project-management', [
-            'projects' => $service->getFiltered(
-                $this->search,
-                $this->statusFilter,
-                $this->approvalFilter,
-                $this->riskFilter,
-                $this->priorityFilter
-            ),
-            'riskLevels' => RiskLevel::cases(),
-            'statuses' => ProjectStatus::options(),
-            'approvalStatuses' => collect(ApprovalStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])->toArray(),
+            'projects' => $projects,
         ]);
     }
 }

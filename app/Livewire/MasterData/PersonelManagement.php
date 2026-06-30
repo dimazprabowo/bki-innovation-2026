@@ -17,6 +17,8 @@ class PersonelManagement extends Component
 
     public $search = '';
     public $competencyFilter = '';
+    public $isActiveFilter = '';
+    public bool $filterChanged = false;
     public $competencyOptions = [];
     public $showDeleteModal = false;
     public $deletingPersonelId;
@@ -31,11 +33,36 @@ class PersonelManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatedCompetencyFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function updatedIsActiveFilter()
+    {
+        $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->competencyFilter = '';
+        $this->isActiveFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Nonaktif'],
+        ];
     }
 
     public function create()
@@ -96,7 +123,7 @@ class PersonelManagement extends Component
     {
         $this->authorize('exportExcel', Personel::class);
 
-        return (new PersonelsExport($this->search, $this->competencyFilter ? (int)$this->competencyFilter : null))
+        return (new PersonelsExport($this->search, $this->competencyFilter ? (int)$this->competencyFilter : null, $this->isActiveFilter !== '' ? $this->isActiveFilter : null))
             ->download('personel-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
@@ -116,7 +143,9 @@ class PersonelManagement extends Component
                     $subQ->where('competencies.id', (int)$this->competencyFilter);
                 });
             })
-            ->where('is_active', true)
+            ->when($this->isActiveFilter !== null && $this->isActiveFilter !== '', function ($q) {
+                $q->where('is_active', $this->isActiveFilter === '1');
+            })
             ->with('competencies')
             ->orderBy('name')
             ->get();
@@ -132,8 +161,15 @@ class PersonelManagement extends Component
 
     public function render(PersonelService $service)
     {
+        $personels = $service->getFiltered($this->search, $this->isActiveFilter !== '' ? $this->isActiveFilter : null, $this->competencyFilter ? (int)$this->competencyFilter : null);
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$personels->total()} data personel.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.master-data.personel-management', [
-            'personels' => $service->getFiltered($this->search, false, $this->competencyFilter ? (int)$this->competencyFilter : null),
+            'personels' => $personels,
         ]);
     }
 }

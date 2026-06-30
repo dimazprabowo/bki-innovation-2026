@@ -1,12 +1,23 @@
 <div>
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="flex-1">
+    <div class="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+        <!-- Search -->
+        <div class="flex-1 w-full md:w-auto">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari konfigurasi..."
                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
         </div>
 
+        <!-- Status Aktif Filter -->
+        <div class="w-full md:w-36">
+            <x-searchable-select
+                wire:model.live="isActiveFilter"
+                :options="$this->isActiveOptions"
+                placeholder="Semua Status"
+                searchPlaceholder="Cari status..."
+            />
+        </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto">
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 w-full md:w-auto">
             @can('configuration_export_excel')
                 <x-loading-button wire:click="exportExcel" target="exportExcel" variant="success" size="md" loadingText="Exporting..." title="Export Excel">
                     <x-slot:icon>

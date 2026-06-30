@@ -16,6 +16,7 @@ class PeralatanExport implements FromQuery, WithHeadings, WithMapping, WithStyle
     use Exportable;
 
     protected ?string $search;
+    protected ?string $isActive;
     protected ?string $calibrationStatus;
     protected ?string $condition;
     protected ?string $ownershipStatus;
@@ -23,12 +24,14 @@ class PeralatanExport implements FromQuery, WithHeadings, WithMapping, WithStyle
 
     public function __construct(
         ?string $search = null,
+        ?string $isActive = null,
         ?string $calibrationStatus = null,
         ?string $condition = null,
         ?string $ownershipStatus = null,
         ?string $reviewStatusFilter = null
     ) {
         $this->search = $search;
+        $this->isActive = $isActive;
         $this->calibrationStatus = $calibrationStatus;
         $this->condition = $condition;
         $this->ownershipStatus = $ownershipStatus;
@@ -63,7 +66,11 @@ class PeralatanExport implements FromQuery, WithHeadings, WithMapping, WithStyle
             $query->where('review_status', $this->reviewStatusFilter);
         }
 
-        return $query->where('is_active', true)->with('evidences')->orderBy('name');
+        if ($this->isActive !== null && $this->isActive !== '') {
+            $query->where('is_active', $this->isActive === '1');
+        }
+
+        return $query->with('evidences')->orderBy('name');
     }
 
     public function headings(): array

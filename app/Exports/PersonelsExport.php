@@ -17,11 +17,13 @@ class PersonelsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
 
     protected ?string $search;
     protected ?int $competencyId;
+    protected ?string $isActive;
 
-    public function __construct(?string $search = null, ?int $competencyId = null)
+    public function __construct(?string $search = null, ?int $competencyId = null, ?string $isActive = null)
     {
         $this->search = $search;
         $this->competencyId = $competencyId;
+        $this->isActive = $isActive;
     }
 
     public function query()
@@ -41,7 +43,11 @@ class PersonelsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
             });
         }
 
-        return $query->where('is_active', true)->with('competencies')->orderBy('name');
+        if ($this->isActive !== null && $this->isActive !== '') {
+            $query->where('is_active', $this->isActive === '1');
+        }
+
+        return $query->with('competencies')->orderBy('name');
     }
 
     public function headings(): array

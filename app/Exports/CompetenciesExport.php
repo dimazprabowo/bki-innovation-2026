@@ -17,11 +17,13 @@ class CompetenciesExport implements FromQuery, WithHeadings, WithMapping, WithSt
 
     protected ?string $search;
     protected ?string $levelFilter;
+    protected ?string $isActive;
 
-    public function __construct(?string $search = null, ?string $levelFilter = null)
+    public function __construct(?string $search = null, ?string $levelFilter = null, ?string $isActive = null)
     {
         $this->search = $search;
         $this->levelFilter = $levelFilter;
+        $this->isActive = $isActive;
     }
 
     public function query()
@@ -39,7 +41,11 @@ class CompetenciesExport implements FromQuery, WithHeadings, WithMapping, WithSt
             $query->where('level', $this->levelFilter);
         }
 
-        return $query->where('is_active', true)->orderBy('name');
+        if ($this->isActive !== null && $this->isActive !== '') {
+            $query->where('is_active', $this->isActive === '1');
+        }
+
+        return $query->orderBy('name');
     }
 
     public function headings(): array

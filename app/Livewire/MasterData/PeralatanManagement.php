@@ -16,9 +16,11 @@ class PeralatanManagement extends Component
     use WithPagination, AuthorizesRequests, HasNotification;
 
     public $search = '';
+    public $isActiveFilter = '';
     public $calibrationStatusFilter = '';
     public $conditionFilter = '';
     public $ownershipStatusFilter = '';
+    public bool $filterChanged = false;
     public $showDeleteModal = false;
     public $deletingPeralatanId;
     public $deletingPeralatanName;
@@ -43,26 +45,48 @@ class PeralatanManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatedCalibrationStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatedConditionFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatedOwnershipStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatedReviewStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function updatedIsActiveFilter()
+    {
+        $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->calibrationStatusFilter = '';
+        $this->conditionFilter = '';
+        $this->ownershipStatusFilter = '';
+        $this->reviewStatusFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
     }
 
     public function create()
@@ -211,6 +235,7 @@ class PeralatanManagement extends Component
 
         return (new PeralatanExport(
             $this->search,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null,
             $this->calibrationStatusFilter ?: null,
             $this->conditionFilter ?: null,
             $this->ownershipStatusFilter ?: null,
@@ -243,7 +268,9 @@ class PeralatanManagement extends Component
             ->when($this->reviewStatusFilter !== null && $this->reviewStatusFilter !== '', function ($q) {
                 $q->where('review_status', $this->reviewStatusFilter);
             })
-            ->where('is_active', true)
+            ->when($this->isActiveFilter !== '', function ($q) {
+                $q->where('is_active', $this->isActiveFilter === '1');
+            })
             ->with('evidences')
             ->orderBy('name')
             ->get();
@@ -281,19 +308,41 @@ class PeralatanManagement extends Component
         ])->toArray();
     }
 
+    public function getReviewStatusOptionsProperty(): array
+    {
+        return collect(\App\Enums\PeralatanReviewStatus::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Non-Aktif'],
+        ];
+    }
+
     public function render(PeralatanService $service)
     {
+        $peralatan = $service->getFiltered(
+            $this->search,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null,
+            $this->calibrationStatusFilter ?: null,
+            $this->conditionFilter ?: null,
+            $this->ownershipStatusFilter ?: null,
+            10,
+            $this->reviewStatusFilter ?: null
+        );
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$peralatan->total()} data peralatan.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.master-data.peralatan-management', [
-            'peralatan' => $service->getFiltered(
-                $this->search,
-                false,
-                $this->calibrationStatusFilter ?: null,
-                $this->conditionFilter ?: null,
-                $this->ownershipStatusFilter ?: null,
-                10,
-                $this->reviewStatusFilter ?: null
-            ),
-            'reviewStatuses' => \App\Enums\PeralatanReviewStatus::cases(),
+            'peralatan' => $peralatan,
         ]);
     }
 }

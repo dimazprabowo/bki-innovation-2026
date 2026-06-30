@@ -1,23 +1,23 @@
 <div>
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center gap-3">
+    <div class="mb-6 flex flex-col md:flex-row md:items-center gap-3">
         <!-- Search -->
-        <div class="flex-1">
+        <div class="flex-1 w-full md:w-auto">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari perusahaan..."
                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
         </div>
 
         <!-- Filter Status -->
-        <div class="w-full lg:w-48">
+        <div class="w-full md:w-44">
             <x-searchable-select
                 wire:model.live="statusFilter"
-                :options="collect([['value' => '', 'label' => 'Semua Status']])->concat(collect($statuses)->map(fn($s) => ['value' => $s->value, 'label' => $s->label()]))->toArray()"
+                :options="$this->statusOptions"
                 placeholder="Semua Status"
                 searchPlaceholder="Cari status..."
             />
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start">
+        <div class="flex items-center justify-center gap-2 w-full md:w-auto md:justify-start">
             @can('companies_export_excel')
                 <x-loading-button wire:click="exportExcel" target="exportExcel" variant="success" size="md" loadingText="Exporting..." title="Export Excel">
                     <x-slot:icon>
@@ -35,7 +35,7 @@
                 </x-loading-button>
             @endcan
             @can('companies_create')
-                <x-loading-button wire:click="create" target="create" variant="primary" size="md" loadingText="Memuat..." class="flex-1 lg:flex-none">
+                <x-loading-button wire:click="create" target="create" variant="primary" size="md" loadingText="Memuat..." class="flex-1 md:flex-none">
                     <x-slot:icon>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </x-slot:icon>

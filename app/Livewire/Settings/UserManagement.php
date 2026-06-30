@@ -21,8 +21,9 @@ class UserManagement extends Component
 
     public $search = '';
     public $roleFilter = '';
-    public $statusFilter = '';
+    public $isActiveFilter = '';
     public int $perPage = 10;
+    public bool $filterChanged = false;
     public $showModal = false;
     public $editMode = false;
     
@@ -79,21 +80,50 @@ class UserManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingRoleFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
-    public function updatingStatusFilter()
+    public function updatedIsActiveFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingPerPage()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->roleFilter = '';
+        $this->isActiveFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getRoleOptionsProperty(): array
+    {
+        return Role::all()->map(fn ($role) => [
+            'value' => $role->name,
+            'label' => ucfirst($role->name),
+        ])->toArray();
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Nonaktif'],
+        ];
     }
 
     public function create()
@@ -285,7 +315,7 @@ class UserManagement extends Component
     {
         $this->authorize('exportExcel', User::class);
 
-        return (new UsersExport($this->search, $this->roleFilter, $this->statusFilter))
+        return (new UsersExport($this->search, $this->roleFilter, $this->isActiveFilter !== '' ? $this->isActiveFilter : null))
             ->download('users-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
@@ -296,7 +326,7 @@ class UserManagement extends Component
         $users = $service->getFilteredUsers(
             $this->search,
             $this->roleFilter,
-            $this->statusFilter,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null,
             perPage: 9999
         );
 
@@ -311,13 +341,20 @@ class UserManagement extends Component
 
     public function render(UserService $service)
     {
+        $users = $service->getFilteredUsers(
+            $this->search,
+            $this->roleFilter,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null,
+            $this->perPage
+        );
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$users->total()} data user.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.settings.user-management', [
-            'users' => $service->getFilteredUsers(
-                $this->search,
-                $this->roleFilter,
-                $this->statusFilter,
-                $this->perPage
-            ),
+            'users' => $users,
             'roles' => Role::all(),
             'companies' => Company::orderBy('name')->get(),
         ]);

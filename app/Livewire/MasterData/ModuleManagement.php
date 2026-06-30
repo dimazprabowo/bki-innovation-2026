@@ -19,6 +19,8 @@ class ModuleManagement extends Component
     public $search = '';
     public $riskFilter = '';
     public $reviewStatusFilter = '';
+    public $isActiveFilter = '';
+    public bool $filterChanged = false;
 
     public $showDeleteModal = false;
     public $deletingModuleId;
@@ -42,16 +44,59 @@ class ModuleManagement extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingRiskFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
     }
 
     public function updatingReviewStatusFilter()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function updatedIsActiveFilter()
+    {
+        $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function resetFilters()
+    {
+        $this->riskFilter = '';
+        $this->reviewStatusFilter = '';
+        $this->isActiveFilter = '';
+        $this->resetPage();
+        $this->filterChanged = true;
+        $this->notifySuccess('Filter berhasil direset.');
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Nonaktif'],
+        ];
+    }
+
+    public function getRiskLevelOptionsProperty(): array
+    {
+        return collect(RiskLevel::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
+    }
+
+    public function getReviewStatusOptionsProperty(): array
+    {
+        return collect(\App\Enums\ModuleReviewStatus::cases())->map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ])->toArray();
     }
 
     public function create()
@@ -198,7 +243,7 @@ class ModuleManagement extends Component
     {
         $this->authorize('exportExcel', Module::class);
 
-        return (new ModulesExport($this->search, $this->riskFilter, $this->reviewStatusFilter))
+        return (new ModulesExport($this->search, $this->riskFilter, $this->reviewStatusFilter, $this->isActiveFilter !== '' ? $this->isActiveFilter : null))
             ->download('modul-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
@@ -219,6 +264,9 @@ class ModuleManagement extends Component
             ->when($this->reviewStatusFilter !== null && $this->reviewStatusFilter !== '', function ($q) {
                 $q->where('review_status', $this->reviewStatusFilter);
             })
+            ->when($this->isActiveFilter !== null && $this->isActiveFilter !== '', function ($q) {
+                $q->where('is_active', $this->isActiveFilter === '1');
+            })
             ->orderBy('name')
             ->get();
 
@@ -233,15 +281,20 @@ class ModuleManagement extends Component
 
     public function render(ModuleService $service)
     {
+        $modules = $service->getFiltered(
+            $this->search,
+            $this->riskFilter,
+            $this->reviewStatusFilter,
+            $this->isActiveFilter !== '' ? $this->isActiveFilter : null
+        );
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$modules->total()} data modul.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.master-data.module-management', [
-            'modules' => $service->getFiltered(
-                $this->search,
-                $this->riskFilter,
-                $this->reviewStatusFilter,
-                false
-            ),
-            'riskLevels' => RiskLevel::cases(),
-            'reviewStatuses' => \App\Enums\ModuleReviewStatus::cases(),
+            'modules' => $modules,
         ]);
     }
 }

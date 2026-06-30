@@ -21,6 +21,8 @@ class SystemConfiguration extends Component
     protected $paginationTheme = 'tailwind';
 
     public $search = '';
+    public $isActiveFilter = '';
+    public bool $filterChanged = false;
     public $showModal = false;
     public $editMode = false;
     
@@ -55,6 +57,21 @@ class SystemConfiguration extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function updatedIsActiveFilter()
+    {
+        $this->resetPage();
+        $this->filterChanged = true;
+    }
+
+    public function getIsActiveOptionsProperty(): array
+    {
+        return [
+            ['value' => '1', 'label' => 'Aktif'],
+            ['value' => '0', 'label' => 'Nonaktif'],
+        ];
     }
 
     public function edit($id)
@@ -179,7 +196,7 @@ class SystemConfiguration extends Component
     {
         $this->authorize('exportExcel', SystemConfigModel::class);
 
-        return (new SystemConfigurationsExport($this->search))
+        return (new SystemConfigurationsExport($this->search, $this->isActiveFilter !== '' ? $this->isActiveFilter : null))
             ->download('konfigurasi-' . now()->format('Y-m-d-His') . '.xlsx');
     }
 
@@ -197,6 +214,10 @@ class SystemConfiguration extends Component
             });
         }
 
+        if ($this->isActiveFilter !== null && $this->isActiveFilter !== '') {
+            $query->where('is_active', $this->isActiveFilter === '1');
+        }
+
         $configurations = $query->orderBy('category')->orderBy('key')->get();
 
         $pdf = Pdf::loadView('exports.configurations-pdf', ['configurations' => $configurations]);
@@ -210,8 +231,15 @@ class SystemConfiguration extends Component
 
     public function render(SystemConfigurationService $service)
     {
+        $configurations = $service->getFiltered($this->search, $this->isActiveFilter !== '' ? $this->isActiveFilter : null);
+
+        if ($this->filterChanged) {
+            $this->notifySuccess("Ditemukan {$configurations->total()} data konfigurasi.");
+            $this->filterChanged = false;
+        }
+
         return view('livewire.settings.system-configuration', [
-            'configurations' => $service->getFiltered($this->search),
+            'configurations' => $configurations,
             'categories' => ConfigCategory::options(),
             'dataTypes' => ConfigDataType::options(),
         ]);

@@ -14,11 +14,11 @@ class ModuleService
         ?string $search = null,
         ?string $riskLevel = null,
         ?string $reviewStatus = null,
-        ?bool $activeOnly = true,
+        ?string $isActive = null,
         int $perPage = 10
     ): LengthAwarePaginator {
         return Module::query()
-            ->when($activeOnly, fn ($q) => $q->active())
+            ->when($isActive !== null && $isActive !== '', fn ($q) => $q->where('is_active', $isActive === '1'))
             ->search($search)
             ->byRiskLevel($riskLevel)
             ->byReviewStatus($reviewStatus)
