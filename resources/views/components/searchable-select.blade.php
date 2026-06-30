@@ -105,18 +105,18 @@
         ]) }}
     >
         <div class="flex items-center gap-1.5 min-w-0">
-            <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 min-w-0">
+                <template x-if="selectedOption && selectedOption.sublabel">
+                    <span class="flex-shrink-0 truncate text-base font-extrabold text-gray-600 dark:text-gray-300">
+                        <span x-text="selectedOption.sublabel"></span>
+                        <span class="text-lg font-bold mx-0.5">·</span>
+                    </span>
+                </template>
                 <span
                     x-text="displayText"
                     :class="selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                     class="block truncate text-sm"
                 ></span>
-                <template x-if="selectedOption && selectedOption.sublabel">
-                    <span
-                        x-text="selectedOption.sublabel"
-                        class="block truncate text-xs text-gray-500 dark:text-gray-400 mt-0.5"
-                    ></span>
-                </template>
             </div>
             <template x-if="selectedOption && selectedOption.badges && selectedOption.badges.length">
                 <div class="hidden sm:flex items-center gap-1 flex-shrink-0">
