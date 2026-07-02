@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProcessWorkOrderReference implements ShouldQueue
 {
@@ -44,10 +45,19 @@ class ProcessWorkOrderReference implements ShouldQueue
             $fileSize = strlen($fileContent);
 
             $extension = strtolower(pathinfo($this->fileName, PATHINFO_EXTENSION));
-            $finalFileName = time() . '_' . uniqid() . '.' . $extension;
-            $destinationPath = 'work-order-references/' . $finalFileName;
+            $moduleSlug = $reference->module ? Str::slug($reference->module->name) : 'unknown-module';
+            $documentSlug = Str::slug($reference->document_name ?? 'document');
+            $timestamp = now()->format('YmdHis');
+            $finalFileName = $documentSlug . '_' . $timestamp . '.' . $extension;
+            $destinationPath = config('app.env') . '/work-order-references/' . $moduleSlug . '/' . $finalFileName;
 
-            Storage::disk(file_disk())->put($destinationPath, $fileContent);
+            $disk = file_disk();
+            Storage::disk($disk)->put($destinationPath, $fileContent);
+
+            if (!Storage::disk($disk)->exists($destinationPath)) {
+                throw new \RuntimeException('Failed to upload file to storage: file does not exist after put()');
+            }
+
             Storage::disk('local')->delete($this->tempPath);
 
             $reference->update([

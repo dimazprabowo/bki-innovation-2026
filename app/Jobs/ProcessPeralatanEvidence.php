@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProcessPeralatanEvidence implements ShouldQueue
 {
@@ -44,10 +45,19 @@ class ProcessPeralatanEvidence implements ShouldQueue
             $fileSize = strlen($fileContent);
 
             $extension = strtolower(pathinfo($this->fileName, PATHINFO_EXTENSION));
-            $finalFileName = time() . '_' . uniqid() . '.' . $extension;
-            $destinationPath = 'peralatan-evidence/' . $finalFileName;
+            $peralatanSlug = $evidence->peralatan ? Str::slug($evidence->peralatan->name) : 'unknown-peralatan';
+            $evidenceSlug = Str::slug($evidence->name ?? 'evidence');
+            $timestamp = now()->format('YmdHis');
+            $finalFileName = $evidenceSlug . '_' . $timestamp . '.' . $extension;
+            $destinationPath = config('app.env') . '/peralatan-evidence/' . $peralatanSlug . '/' . $finalFileName;
 
-            Storage::disk(file_disk())->put($destinationPath, $fileContent);
+            $disk = file_disk();
+            Storage::disk($disk)->put($destinationPath, $fileContent);
+
+            if (!Storage::disk($disk)->exists($destinationPath)) {
+                throw new \RuntimeException('Failed to upload file to storage: file does not exist after put()');
+            }
+
             Storage::disk('local')->delete($this->tempPath);
 
             $evidence->update([

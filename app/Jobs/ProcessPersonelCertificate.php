@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Competency;
 use App\Models\Personel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProcessPersonelCertificate implements ShouldQueue
 {
@@ -43,10 +45,21 @@ class ProcessPersonelCertificate implements ShouldQueue
             $fileSize = strlen($fileContent);
 
             $extension = strtolower(pathinfo($this->fileName, PATHINFO_EXTENSION));
-            $finalFileName = time() . '_' . uniqid() . '.' . $extension;
-            $destinationPath = 'personel-certificates/' . $finalFileName;
+            $personel = Personel::find($this->personelId);
+            $competency = Competency::find($this->competencyId);
+            $personelSlug = $personel ? Str::slug($personel->name) : 'unknown-personel';
+            $competencySlug = $competency ? Str::slug($competency->name) : 'unknown-competency';
+            $timestamp = now()->format('YmdHis');
+            $finalFileName = $competencySlug . '_' . $timestamp . '.' . $extension;
+            $destinationPath = config('app.env') . '/personel-certificates/' . $personelSlug . '/' . $finalFileName;
 
-            Storage::disk(file_disk())->put($destinationPath, $fileContent);
+            $disk = file_disk();
+            Storage::disk($disk)->put($destinationPath, $fileContent);
+
+            if (!Storage::disk($disk)->exists($destinationPath)) {
+                throw new \RuntimeException('Failed to upload file to storage: file does not exist after put()');
+            }
+
             Storage::disk('local')->delete($this->tempPath);
 
             DB::table('personel_competency')
