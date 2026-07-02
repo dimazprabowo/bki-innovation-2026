@@ -30,7 +30,7 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-sm font-semibold text-gray-900 dark:text-white">Semua Pengguna</span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                            <span class="inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                                 {{ $totalUsers }} user
                             </span>
                         </div>
@@ -46,7 +46,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-sm font-semibold text-gray-900 dark:text-white">Pengguna Tertentu</span>
                             @if(count($selectedUserIds) > 0)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                                <span class="inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
                                     {{ count($selectedUserIds) }} dipilih
                                 </span>
                             @endif
@@ -285,7 +285,7 @@
                 <div class="flex items-center justify-between gap-2">
                     <dt class="text-gray-500 dark:text-gray-400 flex-shrink-0">Tipe</dt>
                     <dd>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $currentType['bg'] }} {{ $currentType['text'] }}">
+                        <span class="inline-flex items-center whitespace-nowrap gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $currentType['bg'] }} {{ $currentType['text'] }}">
                             {{ $currentType['label'] }}
                         </span>
                     </dd>

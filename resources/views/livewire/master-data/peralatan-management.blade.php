@@ -19,7 +19,7 @@
         <!-- More Filters Button with Popover -->
         <div class="relative" x-data="{ filterOpen: false }" @click.outside="filterOpen = false">
             <button type="button" @click="filterOpen = !filterOpen"
-                class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full md:w-auto">
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full md:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                 </svg>
@@ -171,13 +171,13 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full
                                     {{ $item->condition->value === 'suitable' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' }}">
                                     {{ $item->condition->label() }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full
                                     {{ $item->ownership_status->value === 'owned' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' : 
                                        ($item->ownership_status->value === 'rented' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
                                        ($item->ownership_status->value === 'borrowed' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' : 'bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-400')) }}">
@@ -185,7 +185,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $item->review_status->badgeClass() }}">
+                                <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full {{ $item->review_status->badgeClass() }}">
                                     {{ $item->review_status->label() }}
                                 </span>
                                 @if($item->isRejected() && $item->rejection_reason)
@@ -203,7 +203,7 @@
                                             {{ $item->is_active ? 'translate-x-6' : 'translate-x-1' }}"></span>
                                     </button>
                                 @else
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $item->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' }}">
+                                    <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full {{ $item->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' }}">
                                         {{ $item->is_active ? 'Aktif' : 'Non-Aktif' }}
                                     </span>
                                 @endcan
@@ -346,7 +346,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeApproveReviewModal" target="closeApproveReviewModal" variant="secondary" />
                         <button wire:click="approveReview"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="approveReview">
@@ -395,7 +395,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeRejectReviewModal" target="closeRejectReviewModal" variant="secondary" />
                         <button wire:click="rejectReview"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="rejectReview">

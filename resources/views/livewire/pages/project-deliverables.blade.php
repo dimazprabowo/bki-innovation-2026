@@ -489,7 +489,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeDeleteModal" target="closeDeleteModal" variant="secondary" />
                         <button wire:click="deleteDeliverable"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="deleteDeliverable">

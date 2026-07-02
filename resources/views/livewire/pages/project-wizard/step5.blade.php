@@ -11,7 +11,7 @@
                 wire:click="addAdditionalCost"
                 wire:loading.attr="disabled"
                 wire:target="addAdditionalCost"
-                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50">
+                class="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50">
                 <svg wire:loading.class.remove="inline" wire:loading.class.add="hidden" wire:target="addAdditionalCost" class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <svg wire:loading wire:target="addAdditionalCost" class="animate-spin w-4 h-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -170,7 +170,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                                 <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ $module->name }}</span>
-                                <span class="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
+                                <span class="flex-shrink-0 inline-flex items-center whitespace-nowrap px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
                                     {{ $module->risk_level->label() }}
                                 </span>
                             </div>

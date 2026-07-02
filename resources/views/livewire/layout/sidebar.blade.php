@@ -141,7 +141,7 @@
                                 <span :class="Alpine.store('sidebar').collapsed && 'lg:hidden'">{{ $item['name'] }}</span>
                             </div>
                             @if(isset($item['badge']) && $item['badge'] > 0)
-                                <span :class="Alpine.store('sidebar').collapsed && 'lg:hidden'" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                                <span :class="Alpine.store('sidebar').collapsed && 'lg:hidden'" class="inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
                                     {{ $item['badge'] }}
                                 </span>
                             @endif

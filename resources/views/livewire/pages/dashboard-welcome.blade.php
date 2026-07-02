@@ -13,17 +13,17 @@
                 <p class="text-blue-200 text-sm font-medium">Selamat datang kembali</p>
                 <h2 class="mt-1 text-3xl font-bold">{{ $authUser->name }}</h2>
                 <div class="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
-                    <span class="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
+                    <span class="inline-flex items-center whitespace-nowrap gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
                         <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
                         {{ $authUserRole }}
                     </span>
                     @if($authUser->position)
-                    <span class="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
+                    <span class="inline-flex items-center whitespace-nowrap gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
                         {{ $authUser->position }}
                     </span>
                     @endif
                     @if($authUser->company)
-                    <span class="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
+                    <span class="inline-flex items-center whitespace-nowrap gap-1.5 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
                         </svg>
@@ -180,7 +180,7 @@
     {{-- Profile Edit CTA --}}
     <div class="flex justify-end">
         <a href="{{ route('profile') }}" wire:navigate
-           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+           class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>

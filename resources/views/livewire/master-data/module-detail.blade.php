@@ -41,7 +41,7 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Risk Level</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->risk_level->badgeClass() }} mt-1">
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->risk_level->badgeClass() }} mt-1">
                     {{ $module->risk_level->label() }}
                 </span>
             </div>
@@ -51,7 +51,7 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300' }} mt-1">
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300' }} mt-1">
                     {{ $module->is_active ? 'Aktif' : 'Non-Aktif' }}
                 </span>
             </div>
@@ -113,7 +113,7 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $item->description }}</p>
                                 @endif
                             </div>
-                            <span class="text-xs px-2 py-0.5 rounded-full {{ $item->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $item->nature_label }}</span>
+                            <span class="inline-flex items-center whitespace-nowrap text-xs px-2 py-0.5 rounded-full {{ $item->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $item->nature_label }}</span>
                         </div>
                         @if($item->subitems->isNotEmpty())
                             <div class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -126,7 +126,7 @@
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ $subitem->description }}</p>
                                             @endif
                                         </div>
-                                        <span class="text-xs px-2 py-0.5 rounded-full {{ $subitem->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $subitem->nature_label }}</span>
+                                        <span class="inline-flex items-center whitespace-nowrap text-xs px-2 py-0.5 rounded-full {{ $subitem->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $subitem->nature_label }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -158,7 +158,7 @@
                                         <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kompetensi:</p>
                                         <div class="flex flex-wrap gap-1">
                                             @foreach($personel->competencies as $competency)
-                                                <span class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">{{ $competency->name }}</span>
+                                                <span class="inline-flex items-center whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">{{ $competency->name }}</span>
                                             @endforeach
                                         </div>
                                     </div>
@@ -189,7 +189,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Qty: {{ $tool->quantity ?? 1 }}</p>
                                 <div class="mt-2 flex items-center gap-2">
                                     @if($tool->requires_calibration)
-                                        <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
+                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -197,7 +197,7 @@
                                             Perlu Kalibrasi
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
@@ -227,7 +227,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $deliverable->description }}</p>
                             @endif
                         </div>
-                        <span class="text-xs px-2 py-0.5 rounded-full {{ $deliverable->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $deliverable->nature_label }}</span>
+                        <span class="inline-flex items-center whitespace-nowrap text-xs px-2 py-0.5 rounded-full {{ $deliverable->nature === 'mandatory' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $deliverable->nature_label }}</span>
                     </div>
                 @endforeach
             </div>
@@ -238,7 +238,7 @@
     <div class="flex items-center justify-end gap-3">
         @can('modules_update')
             <a href="{{ route('master-data.modules.edit', $module) }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
                 <svg x-show="!loading" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>

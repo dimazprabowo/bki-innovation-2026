@@ -19,7 +19,7 @@
         <!-- More Filters Button with Popover -->
         <div class="relative w-full md:w-auto" @click.outside="filterOpen = false">
             <button type="button" @click="filterOpen = !filterOpen"
-                class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full md:w-auto">
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full md:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                 </svg>
@@ -157,12 +157,12 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                                     {{ $module->projects_count }} project
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $module->review_status->badgeClass() }}">
+                                <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full {{ $module->review_status->badgeClass() }}">
                                     {{ $module->review_status->label() }}
                                 </span>
                                 @if($module->isRejected() && $module->rejection_reason)
@@ -325,7 +325,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeApproveReviewModal" target="closeApproveReviewModal" variant="secondary" />
                         <button wire:click="approveReview"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="approveReview">
@@ -374,7 +374,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeRejectReviewModal" target="closeRejectReviewModal" variant="secondary" />
                         <button wire:click="rejectReview"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="rejectReview">

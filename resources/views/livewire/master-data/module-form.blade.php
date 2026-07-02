@@ -56,7 +56,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-semibold text-gray-800 dark:text-white">Status Review Modul</span>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->review_status->badgeClass() }}">
+                                    <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium {{ $module->review_status->badgeClass() }}">
                                         {{ $module->review_status->label() }}
                                     </span>
                                 </div>

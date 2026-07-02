@@ -95,7 +95,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                                     {{ $company->users_count }} user
                                 </span>
                             </td>
@@ -115,7 +115,7 @@
                                             'suspended' => 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
                                         ];
                                     @endphp
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$company->status->value] ?? $statusColors['inactive'] }}">
+                                    <span class="inline-flex items-center whitespace-nowrap px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$company->status->value] ?? $statusColors['inactive'] }}">
                                         {{ $company->status->label() }}
                                     </span>
                                 @endcan

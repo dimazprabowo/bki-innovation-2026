@@ -9,7 +9,7 @@
                 <p class="mt-1 text-blue-100 text-sm">
                     {{ config('app.name') }} &mdash; Panel Administrasi
                 </p>
-                <div class="mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
+                <div class="mt-3 inline-flex items-center whitespace-nowrap gap-2 bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
                     <span class="w-2 h-2 bg-green-400 rounded-full"></span>
                     {{ $authUserRole }}
                 </div>

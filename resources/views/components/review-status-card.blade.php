@@ -45,7 +45,7 @@
         <div class="flex-1 min-w-0">
             <div class="flex items-center gap-3 flex-wrap">
                 <h3 class="text-base font-semibold text-gray-800 dark:text-white">{{ $title }}</h3>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $reviewStatus->badgeClass() }}">
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium {{ $reviewStatus->badgeClass() }}">
                     {{ $reviewStatus->label() }}
                 </span>
             </div>

@@ -32,7 +32,7 @@
             <button wire:click="stopImpersonating"
                     wire:loading.attr="disabled"
                     wire:target="stopImpersonating"
-                    class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-white text-orange-600 hover:bg-orange-50 transition-all text-sm font-semibold shadow-sm disabled:opacity-50 flex-shrink-0">
+                    class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg bg-white text-orange-600 hover:bg-orange-50 transition-all text-sm font-semibold shadow-sm disabled:opacity-50 flex-shrink-0">
                 <svg wire:loading.remove wire:target="stopImpersonating" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>

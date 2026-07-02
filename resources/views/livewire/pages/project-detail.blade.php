@@ -27,7 +27,7 @@
                         <span class="relative inline-flex"
                             @mouseenter="tooltip = 'status'"
                             @mouseleave="tooltip = null">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full {{ $project->status->badgeClass() }} cursor-help">
+                            <span class="inline-flex items-center whitespace-nowrap px-2.5 py-1 text-xs font-medium rounded-full {{ $project->status->badgeClass() }} cursor-help">
                                 Status: {{ $project->status->label() }}
                             </span>
                             <template x-if="tooltip === 'status'">
@@ -42,7 +42,7 @@
                         <span class="relative inline-flex"
                             @mouseenter="tooltip = 'approval'"
                             @mouseleave="tooltip = null">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full {{ $project->approval_status->badgeClass() }} cursor-help">
+                            <span class="inline-flex items-center whitespace-nowrap px-2.5 py-1 text-xs font-medium rounded-full {{ $project->approval_status->badgeClass() }} cursor-help">
                                 Approval: {{ $project->approval_status->label() }}
                             </span>
                             <template x-if="tooltip === 'approval'">
@@ -57,7 +57,7 @@
                         <span class="relative inline-flex"
                             @mouseenter="tooltip = 'priority'"
                             @mouseleave="tooltip = null">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full {{ $project->priority->badgeClass() }} cursor-help">
+                            <span class="inline-flex items-center whitespace-nowrap px-2.5 py-1 text-xs font-medium rounded-full {{ $project->priority->badgeClass() }} cursor-help">
                                 Prioritas: {{ $project->priority->label() }}
                             </span>
                             <template x-if="tooltip === 'priority'">
@@ -72,7 +72,7 @@
                         <span class="relative inline-flex"
                             @mouseenter="tooltip = 'risk'"
                             @mouseleave="tooltip = null">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full {{ $project->risk_level->badgeClass() }} cursor-help">
+                            <span class="inline-flex items-center whitespace-nowrap px-2.5 py-1 text-xs font-medium rounded-full {{ $project->risk_level->badgeClass() }} cursor-help">
                                 Risiko: {{ $project->risk_level->label() }}
                             </span>
                             <template x-if="tooltip === 'risk'">
@@ -135,7 +135,7 @@
                 @can('projects_update')
                     @if($project->status->isEditable())
                         <a href="{{ route('projects.edit', $project) }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                             <svg x-show="!loading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <svg x-show="loading" x-cloak class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -150,7 +150,7 @@
                 @can('projects_work_order')
                     @if($project->status->value === 'active')
                         <a href="{{ route('projects.work-order', $project) }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
                             <svg x-show="!loading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             <svg x-show="loading" x-cloak class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -165,7 +165,7 @@
                 @can('projects_deliverables')
                     @if($project->status->value === 'active')
                         <a href="{{ route('projects.deliverables', $project) }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
                             <svg x-show="!loading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
                             <svg x-show="loading" x-cloak class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -334,7 +334,7 @@
                         <button type="button" @click="open = !open" class="w-full px-5 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900/70">
                             <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                             <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 text-left">{{ $module->name }}</span>
-                            <span class="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
+                            <span class="flex-shrink-0 inline-flex items-center whitespace-nowrap px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
                                 {{ $module->risk_level->label() }}
                             </span>
                             <svg class="flex-shrink-0 w-4 h-4 text-gray-400 ml-auto transition-transform duration-200" :class="open ? '' : '-rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -393,7 +393,7 @@
                                                                 @php
                                                                     $reqFulfilled = $allAssignedCompetencyIds->contains($reqComp->id);
                                                                 @endphp
-                                                                <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $reqFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
+                                                                <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $reqFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
                                                                     @if($reqFulfilled)
                                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                                     @else
@@ -426,7 +426,7 @@
                                                                                 @php
                                                                                     $fulfilled = $personelCompetencyIds->contains($reqComp->id);
                                                                                 @endphp
-                                                                                <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $fulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
+                                                                                <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $fulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
                                                                                     @if($fulfilled)
                                                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                                                     @else
@@ -521,7 +521,7 @@
                                                 {{-- Tool Requirements --}}
                                                 <div class="flex flex-wrap items-center gap-1.5 mb-2">
                                                     @if($requiresCalibration)
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $calibrationFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' }}">
+                                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $calibrationFulfilled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' }}">
                                                             @if($calibrationFulfilled)
                                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                             @else
@@ -530,7 +530,7 @@
                                                             {{ $calibrationFulfilled ? 'Kalibrasi Terpenuhi' : 'Perlu Kalibrasi' }}
                                                         </span>
                                                     @else
-                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                                                             Tanpa Kalibrasi
                                                         </span>
                                                     @endif
@@ -570,7 +570,7 @@
                                                                                 default => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
                                                                             };
                                                                         @endphp
-                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $statusColor }}">
+                                                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $statusColor }}">
                                                                             @if($calibrationStatus->value === 'calibrated' && !$isExpired)
                                                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                                             @elseif($isExpired)
@@ -579,13 +579,13 @@
                                                                             {{ $calibrationStatus->label() }}
                                                                         </span>
                                                                     @elseif(!$requiresCalibration)
-                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                                             Sesuai
                                                                         </span>
                                                                     @endif
                                                                     @if($expiredDate)
-                                                                        <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $isExpired ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                                                                        <span class="inline-flex items-center whitespace-nowrap gap-1 text-[10px] px-1.5 py-0.5 rounded-full {{ $isExpired ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                                                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                                                             Exp: {{ $expiredDate->format('d M Y') }}
                                                                             @if($isExpired)
@@ -594,7 +594,7 @@
                                                                         </span>
                                                                     @endif
                                                                     @if($peralatan?->condition)
-                                                                        <span class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                                        <span class="inline-flex items-center whitespace-nowrap text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                                                                             Kondisi: {{ $peralatan->condition->label() }}
                                                                         </span>
                                                                     @endif
@@ -643,7 +643,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                             <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ $module->name }}</span>
-                            <span class="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
+                            <span class="flex-shrink-0 inline-flex items-center whitespace-nowrap px-2 py-0.5 text-xs font-medium rounded-full {{ $module->risk_level->badgeClass() }}">
                                 {{ $module->risk_level->label() }}
                             </span>
                         </div>
@@ -710,7 +710,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeRejectModal" target="closeRejectModal" />
                         <button wire:click="reject"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="reject">
@@ -755,7 +755,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeCloseModal" target="closeCloseModal" variant="secondary" />
                         <button wire:click="closeProject"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="closeProject">
@@ -800,7 +800,7 @@
                     <div class="flex items-center justify-center gap-3">
                         <x-cancel-button wire:click="closeApproveModal" target="closeApproveModal" variant="secondary" />
                         <button wire:click="approve"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-70 cursor-not-allowed"
                             wire:target="approve">

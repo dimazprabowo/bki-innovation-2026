@@ -4,13 +4,13 @@
     <div class="flex items-center justify-between mb-2">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Evidence Peralatan
-            <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full @if(count($evidences) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
+            <span class="ml-2 inline-flex items-center whitespace-nowrap px-2 py-0.5 text-xs font-semibold rounded-full @if(count($evidences) > 0) bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
                 {{ count($evidences) }} evidence
             </span>
         </label>
         <button type="button" wire:click="addEvidence" wire:key="add-evidence-btn"
             wire:loading.attr="disabled" wire:target="addEvidence"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">
+            class="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">
             @if(count($evidences) === 0)
                 <svg wire:loading.remove wire:target="addEvidence" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -19,7 +19,8 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span wire:loading.remove wire:target="addEvidence">Tambah Evidence</span>
+                <span wire:loading.remove wire:target="addEvidence" class="hidden sm:inline">Tambah Evidence</span>
+                <span wire:loading.remove wire:target="addEvidence" class="sm:hidden">Tambah</span>
                 <span wire:loading wire:target="addEvidence">Memproses...</span>
             @else
                 <svg wire:loading.remove wire:target="addEvidence" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +30,8 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span wire:loading.remove wire:target="addEvidence">Tambah</span>
+                <span wire:loading.remove wire:target="addEvidence" class="hidden sm:inline">Tambah Evidence</span>
+                <span wire:loading.remove wire:target="addEvidence" class="sm:hidden">Tambah</span>
                 <span wire:loading wire:target="addEvidence">Memproses...</span>
             @endif
         </button>

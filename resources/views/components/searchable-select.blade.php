@@ -133,7 +133,7 @@
                 <span
                     x-text="selectedOption.badge"
                     :class="selectedOption.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
+                    class="inline-flex items-center whitespace-nowrap px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
                 ></span>
             </template>
         </div>
@@ -261,7 +261,7 @@
                                     <span 
                                         x-text="option.badge"
                                         :class="option.badgeClass || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
-                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
+                                        class="inline-flex items-center whitespace-nowrap px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0"
                                     ></span>
                                 </template>
                             </div>

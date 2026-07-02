@@ -41,7 +41,7 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status Kalibrasi</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
                     {{ $peralatan->calibration_status->value === 'calibrated' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : '' }}
                     {{ $peralatan->calibration_status->value === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : '' }}
                     {{ $peralatan->calibration_status->value === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : '' }}
@@ -55,14 +55,14 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kondisi</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
                     {{ $peralatan->condition->value === 'suitable' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' }}">
                     {{ $peralatan->condition->label() }}
                 </span>
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status Kepemilikan</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
                     {{ $peralatan->ownership_status->value === 'owned' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : '' }}
                     {{ $peralatan->ownership_status->value === 'rented' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
                     {{ $peralatan->ownership_status->value === 'borrowed' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' : '' }}
@@ -72,7 +72,7 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</p>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $peralatan->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300' }} mt-1">
+                <span class="inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium {{ $peralatan->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300' }} mt-1">
                     {{ $peralatan->is_active ? 'Aktif' : 'Non-Aktif' }}
                 </span>
             </div>
@@ -132,7 +132,7 @@
     <div class="flex items-center justify-end gap-3">
         @can('peralatan_update')
             <a href="{{ route('master-data.peralatan.edit', $peralatan) }}" wire:navigate x-data="{ loading: false }" @click="loading = true"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
                 <svg x-show="!loading" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>

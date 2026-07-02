@@ -26,7 +26,7 @@
                 <div class="flex items-center justify-center gap-3">
                     <x-cancel-button wire:click="$set('{{ $attributes->wire('model')->value() }}', false)" target="$set('{{ $attributes->wire('model')->value() }}', false)" variant="secondary" />
                     <button wire:click="{{ $confirmMethod }}" 
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all" 
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all" 
                         wire:loading.attr="disabled" 
                         wire:loading.class="opacity-70 cursor-not-allowed"
                         wire:target="{{ $confirmMethod }}">
